@@ -1,6 +1,8 @@
 #!/usr/bin/env.python3
 # import the necessary packages
 from logging import shutdown
+
+from matplotlib import image
 import rospy 
 from imutils.video import VideoStream
 import numpy as np
@@ -10,12 +12,16 @@ import cv2
 from std_msgs.msg import String, int
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from .helpers import FACIAL_LANDMARKS_IDXS
+from .helpers import shape_to_np
+
 
 
 
 class face_detector_node:
         def __init__(self) -> None:
                 self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
+                self.pub_cara = rospy.Publisher('cara', Image,queue_size=10)
                 self.rate = rospy.Rate(1)
                 self.bridge = CvBridge()
 
@@ -59,6 +65,8 @@ class face_detector_node:
                         cv2.rectangle(frame, (startX, startY), (endX, endY),(0, 255, 0), 2)
                         cv2.putText(frame, text, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 2)
 
+
+
                     # show the output frame
                     cv2.imshow("Frame", frame)
                     key = cv2.waitKey(1) & 0xFF
@@ -67,6 +75,15 @@ class face_detector_node:
                     # if key == ord("q"):
                     # break
                     # Estes liíneas para salir al precionar la q imagino que deberían ir fuera
+
+            def callback(self,data):
+		        if self.new_image_ready:
+			        return
+		        try:
+			        self.new_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+			        self.new_image_ready = True
+		        except CvBridgeError as e:
+			        print(e)
 
 def main(args):
     rospy.init_node('face_detector_node', anonymous=True)
