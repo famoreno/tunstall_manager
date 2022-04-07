@@ -70,10 +70,11 @@ class face_detector_node:
 
                         #recortar la imagen de la cara
                         crop_frame = frame[startY:endY,startX:endX]
-                        #gdh
-                        # 
-                        # alinear ojos
-                        # 
+                        
+                        
+                        # ALINEAR OJOS
+                        
+                        
                         #   
                         # Volver a cambiar el formato a imagen
                         face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
