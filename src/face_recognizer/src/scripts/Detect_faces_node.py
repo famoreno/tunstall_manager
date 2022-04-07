@@ -70,6 +70,7 @@ class face_detector_node:
 
                         #recortar la imagen de la cara
                         crop_frame = frame[startY:endY,startX:endX]
+                        #gdh
                         # 
                         # alinear ojos
                         # 
