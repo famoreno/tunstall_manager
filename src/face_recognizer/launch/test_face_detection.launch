@@ -1,0 +1,18 @@
+<launch>
+  <!-- This node publishes images from the webcam -->
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  
+  <node name="face_recognizer" pkg="face_recognizer" type="Detect_faces_node.py" output="screen" >
+    <param name="protoPath" value="$(find face_recognizer)/data/deploy.prototxt.txt"/> 
+    <param name="modelPath" value="$(find face_recognizer)/data/res10_300x300_ssd_iter_140000.caffemodel"/> 
+  </node>
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find face_recognizer)/rviz/config_file.rviz" />
+</launch>
