@@ -18,6 +18,10 @@ import imutils
 from imutils.face_utils.helpers import FACIAL_LANDMARKS_IDXS
 from imutils.face_utils.helpers import shape_to_np
 
+from imutils.face_utils import FaceAligner
+
+
+
 class face_detector_node:
         def __init__(self) -> None:
                 self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
@@ -75,11 +79,25 @@ class face_detector_node:
 
                         # recortar la imagen de la cara
                         crop_frame = frame[startY:endY,startX:endX]
+
+                        # TODO poner imagen en escala de grises
+
+                        # image = imutils.resize(image, width=800)
+                        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                         
                         # TODO: ALINEAR OJOS
                         
+                        fa = FaceAligner(predictor, desiredFaceWidth=256)
+
+                        face_frame = fa.align(frame, gray, crop_frame)
                         
                         #   
+
+                        # volver a recortar 
+
+                        crop_frame = face_frame[startY:endY,startX:endX]
+
+
                         # Volver a cambiar el formato a imagen
                         face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
                         self.pub_cara.publish(face_frame)
