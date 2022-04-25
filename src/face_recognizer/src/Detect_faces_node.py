@@ -87,15 +87,15 @@ class face_detector_node:
                         
                         # TODO: ALINEAR OJOS
                         
-                        fa = FaceAligner(predictor, desiredFaceWidth=256)
+                       # fa = FaceAligner(predictor, desiredFaceWidth=256)
 
-                        face_frame = fa.align(frame, gray, crop_frame)
+                        #face_frame = fa.align(frame, gray, crop_frame)
                         
                         #   
 
                         # volver a recortar 
 
-                        crop_frame = face_frame[startY:endY,startX:endX]
+                        #crop_frame = face_frame[startY:endY,startX:endX]
 
 
                         # Volver a cambiar el formato a imagen
