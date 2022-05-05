@@ -121,3 +121,6 @@ def main(args):
         rospy.spin()
     except KeyboardInterrupt:
         print("shutting down")
+
+if __name__=='__main__':
+    main(sys.argv)
