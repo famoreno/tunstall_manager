@@ -12,6 +12,9 @@
   <node name="face_recognizer" pkg="face_recognizer" type="face_detection_node.py" output="screen" >
     <param name="protoPath" value="$(find face_recognizer)/data/deploy.prototxt.txt"/> 
     <param name="modelPath" value="$(find face_recognizer)/data/res10_300x300_ssd_iter_140000.caffemodel"/> 
+    
+    <!-- For face alignment -->
+    <param name="shapePredictor" value="$(find face_recognizer)/data/shape_predictor_68_face_landmarks.dat"/> 
   </node>
 
   <node type="rviz" name="rviz" pkg="rviz" args="-d $(find face_recognizer)/rviz/config_file.rviz" />
