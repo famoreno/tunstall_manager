@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # import the necessary packages
 from imutils import paths
 import numpy as np
