@@ -10,6 +10,8 @@ protoPath = "../../data/deploy.prototxt.txt"
 modelPath = "../../data/res10_300x300_ssd_iter_140000.caffemodel"
 detector = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
+# Esto hay que meterlo en el nodo del reconocedor
+
 # load our serialized face embedding model from disk
 print("[INFO] loading face recognizer...")
 embbedModelPath = "../../data/openface.nn4.small2.v1.t7"
@@ -21,6 +23,8 @@ recognizer = pickle.loads(open(recognizerPath, "rb").read())
 
 lePath = "../../data/train_output/le.pickle"
 le = pickle.loads(open(lePath, "rb").read())
+
+# hasta aquí y traducirlo a ROS
 
 # load the image, resize it to have a width of 600 pixels (while
 # maintaining the aspect ratio), and then grab the image dimensions
