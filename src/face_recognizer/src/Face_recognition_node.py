@@ -40,43 +40,43 @@ class Face_recognition_node:
             if not self.new_image_ready:
                         continue
 
-            # construct a blob for the face ROI, then pass the blob
-		    # through our face embedding model to obtain the 128-d
-		    # quantification of the face
+                # construct a blob for the face ROI, then pass the blob
+		        # through our face embedding model to obtain the 128-d
+		        # quantification of the face
 
             
-            # la variable face coge el valor del topic recibido por el nodo anterior
-            face = self.detected_face
+                # la variable face coge el valor del topic recibido por el nodo anterior
+                face = self.detected_face
 
-            #
-		    faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),
-			    (0, 0, 0), swapRB=True, crop=False)
-		    embedder.setInput(faceBlob)
-		    vec = embedder.forward()
-		    # perform classification to recognize the face
-		    preds = recognizer.predict_proba(vec)[0]
-		    j = np.argmax(preds)
-		    proba = preds[j]
-		    name = le.classes_[j]
+                #
+		        faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),
+			     (0, 0, 0), swapRB=True, crop=False)
+		        embedder.setInput(faceBlob)
+		        vec = embedder.forward()
+		        # perform classification to recognize the face
+		        preds = recognizer.predict_proba(vec)[0]
+		        j = np.argmax(preds)
+		        proba = preds[j]
+		        name = le.classes_[j]
 
-            # draw the bounding box of the face along with the associated
-		    # probability
-		    text = "{}: {:.2f}%".format(name, proba * 100)
-		    y = startY - 10 if startY - 10 > 10 else startY + 10
-		    cv2.rectangle(image, (startX, startY), (endX, endY),
-			    (0, 0, 255), 2)
-		    cv2.putText(image, text, (startX, y),
-			    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+                # draw the bounding box of the face along with the associated
+		        # probability
+		        text = "{}: {:.2f}%".format(name, proba * 100)
+		        y = startY - 10 if startY - 10 > 10 else startY + 10
+		        cv2.rectangle(image, (startX, startY), (endX, endY),
+			      (0, 0, 255), 2)
+		        cv2.putText(image, text, (startX, y),
+			        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-            # show the output image (publicada como topic mediante ROS)
-            face_frame = self.bridge.cv2_to_imgmsg(face)
-            self.pub_cara.publish(face_frame)
+                # show the output image (publicada como topic mediante ROS)
+                face_frame = self.bridge.cv2_to_imgmsg(face)
+                self.pub_cara.publish(face_frame)
              
 
-             # Pronunciar el nombre en voz alta
+                # Pronunciar el nombre en voz alta
 
 
-             #
+                 #
     #leer el topic de face_detection_node
     def callback(self,data):
             if self.new_image_ready:

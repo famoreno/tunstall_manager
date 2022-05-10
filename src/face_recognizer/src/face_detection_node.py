@@ -73,18 +73,18 @@ class face_detector_node:
                 (startX, startY, endX, endY) = box.astype("int")
 
                 # recortar la imagen de la cara
-                # crop_frame = frame[startY:endY,startX:endX]
+                crop_frame = frame[startY:endY,startX:endX]
 
-                image = imutils.resize(frame0, width=800)
-                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                #image = imutils.resize(frame0, width=800)
+                #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 
                 # Eye alignment
-                this_bb = dlib.rectangle(startX,startY,endX,endY)
-                face_aligned = self.fa.align(image, gray, this_bb)
+                #this_bb = dlib.rectangle(startX,startY,endX,endY)
+                #face_aligned = self.fa.align(image, gray, this_bb)
 
                 # Volver a cambiar el formato a imagen
-                # face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
-                face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
+                face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
+                #face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
                 self.pub_cara.publish(face_frame)
 
             # clear image ready flag to process more
