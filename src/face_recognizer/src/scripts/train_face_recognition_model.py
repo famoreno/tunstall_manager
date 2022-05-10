@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # import the necessary packages
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
