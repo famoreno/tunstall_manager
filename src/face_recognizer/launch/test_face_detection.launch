@@ -19,8 +19,8 @@
 
  <node name="face_recognizer" pkg="face_recognizer" type="Face_recognition_node.py" output="screen" > 
     <param name="embbedModelPath" value="$(find face_recognizer)/data/openface.nn4.small2.v1.t7"/> 
-    <param name="recognizerPath" value="$(find face_recognizer)/train_output/recognizer.pickle"/>
-    <param name="lePath" value="$(find face_recognizer)/train_output/le.pickle"/>
+    <param name="recognizerPath" value="$(find face_recognizer)/data/train_output/recognizer.pickle"/>
+    <param name="lePath" value="$(find face_recognizer)/data/train_output/le.pickle"/>
   </node>
   
 
