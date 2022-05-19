@@ -9,7 +9,7 @@
     <param name="io_method" value="mmap"/>
   </node>
   
-  <node name="face_recognizer" pkg="face_recognizer" type="face_detection_node.py" output="screen" >
+  <node name="face_detector" pkg="face_recognizer" type="face_detection_node.py" output="screen" >
     <param name="protoPath" value="$(find face_recognizer)/data/deploy.prototxt.txt"/> 
     <param name="modelPath" value="$(find face_recognizer)/data/res10_300x300_ssd_iter_140000.caffemodel"/> 
     
