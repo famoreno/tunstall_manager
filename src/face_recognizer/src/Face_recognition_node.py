@@ -68,14 +68,14 @@ class Face_recognition_node:
             j = np.argmax(preds)
             proba = preds[j]
             name = le.classes_[j]
-            print(name)
+            #print(name)
 
             # draw the bounding box of the face along with the associated
 		    # probability
-            #text = "{}: {:.2f}%".format(name, proba * 100)
+            text = "{}: {:.2f}%".format(name, proba * 100)
             #y = startY - 10 if startY - 10 > 10 else startY + 10
             #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
-            #cv2.putText(image, text, (startX, y),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+            cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
             # show the output image (publicada como topic mediante ROS)
             face_frame = self.bridge.cv2_to_imgmsg(face)
@@ -83,7 +83,8 @@ class Face_recognition_node:
              
 
             # Pronunciar el nombre en voz alta
-
+            # reset flag
+            self.detected_face_ready = False
 
             #
     #leer el topic de face_detection_node
