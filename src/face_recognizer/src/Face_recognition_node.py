@@ -1,12 +1,16 @@
+#!/usr/bin/env python3
 # nodo identificador
 
 from logging import shutdown
-import string
-from matplotlib import image
+#import string
+from std_msgs.msg import String
+#from matplotlib import image
+from sensor_msgs.msg import Image
 import numpy as np
 import imutils
 import pickle
 import cv2
+import sys
 import rospy 
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -14,13 +18,13 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class Face_recognition_node:
     def __init__(self) -> None:
-        self.sub = rospy.Subscriber('caras_recortadas',image,self.callback)
-        self.sub = rospy.Subscriber('lista_de_nombres',string,self.callback)
-        self.pub_nombre = rospy.Publisher('nombre',string,queue_size=10)
-        self.pub_cara = rospy.Publisher('face', image,queue_size=10)
+        self.sub = rospy.Subscriber('face',Image,self.callback)
+        self.pub_nombre = rospy.Publisher('nombre',String,queue_size=10)
+        self.pub_cara = rospy.Publisher('recognized_face', Image,queue_size=10)
         self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
         self.crop_face_ready = False
+        self.detected_face_ready = False
 
 
         # load our serialized face embedding model from disk
@@ -39,6 +43,8 @@ class Face_recognition_node:
         self.lePath = rospy.get_param('~lePath')
         #lePath = "../../data/train_output/le.pickle"
         le = pickle.loads(open(self.lePath, "rb").read())
+
+        print("[INFO face recognizer] parameters loaded")
 
 
         while rospy is not shutdown():
@@ -62,13 +68,14 @@ class Face_recognition_node:
             j = np.argmax(preds)
             proba = preds[j]
             name = le.classes_[j]
+            print(name)
 
             # draw the bounding box of the face along with the associated
 		    # probability
-            text = "{}: {:.2f}%".format(name, proba * 100)
-            y = startY - 10 if startY - 10 > 10 else startY + 10
-            cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
-            cv2.putText(image, text, (startX, y),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+            #text = "{}: {:.2f}%".format(name, proba * 100)
+            #y = startY - 10 if startY - 10 > 10 else startY + 10
+            #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
+            #cv2.putText(image, text, (startX, y),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
             # show the output image (publicada como topic mediante ROS)
             face_frame = self.bridge.cv2_to_imgmsg(face)
@@ -84,7 +91,8 @@ class Face_recognition_node:
             if self.detected_face_ready:
                 return
             try:
-                self.detected_face = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+                # self.detected_face = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+                self.detected_face = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
                 self.detected_face_ready = True
             except CvBridgeError as e:
                 print(e)
