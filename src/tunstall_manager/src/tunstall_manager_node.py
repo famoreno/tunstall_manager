@@ -30,6 +30,8 @@ class tunstall_manager_node:
 		self.sensor_database = None
 		self.sensor_file = rospy.get_param('~sensorFile')
 
+		self.load_sensors_from_file()
+
         # load sensor database from json file
         # sensors = {}
         # id ==> {place (dupla), type (enum), status (bool)}
@@ -51,7 +53,11 @@ class tunstall_manager_node:
 		return
     
 	def load_sensors_from_file(self):
-		data = json.load(self.sensor_file)
+		self.sensor_database = json.load(self.sensor_file)
+		for i in self.sensor_database['emp_details']:
+			print(i)
+
+
 
 def main(args):
   rospy.init_node('tunstall_manager_node', anonymous=True)
