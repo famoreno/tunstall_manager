@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # import the necessary packages
 from logging import shutdown
+from tabnanny import verbose
 
 from matplotlib import image
 import rospy 
@@ -20,6 +21,8 @@ from imutils.face_utils.helpers import FACIAL_LANDMARKS_IDXS
 from imutils.face_utils.helpers import shape_to_np
 from imutils.face_utils import FaceAligner
 
+from face_recognizer.srv import command_face_detection
+
 class face_detector_node:
     def __init__(self) -> None:
         self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
@@ -28,6 +31,9 @@ class face_detector_node:
         self.bridge = CvBridge()
         self.confidence = 0.9
         self.new_image_ready = False
+        self.rate = rospy.Rate(1)
+        self.active = False
+        self.verbose = False
 
         # face detector
         self.protoPath = rospy.get_param('~protoPath')
@@ -39,56 +45,66 @@ class face_detector_node:
         self.predictor = dlib.shape_predictor(self.predictorPath)
         self.fa = FaceAligner(self.predictor)
 
+        #Service to start/stop surveillance mode
+        self.srv = rospy.Service('~command_face_detection', command_face_detection, self.handle_command_face_detection)
+
         while not rospy.is_shutdown():
-            if not self.new_image_ready:
-                continue
+            
+            #Check if surveillance mode is active
+            if self.active:
 
-            # grab the frame from the threaded video stream and resize it
-            # to have a maximum width of 800 pixels
-            frame0 = self.new_image
-            frame = imutils.resize(frame0, width=800)
-
-            # grab the frame dimensions and convert it to a blob
-            (h, w) = frame.shape[:2]
-            blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 1.0,(300, 300), (104.0, 177.0, 123.0))
-
-            # pass the blob through the network and obtain the detections and predictions
-            self.detector.setInput(blob)
-            detections = self.detector.forward()
-            count = 0  
-
-            for i in range(0, detections.shape[2]):
-                # extract the confidence (i.e., probability) associated with the prediction
-                confidence = detections[0, 0, i, 2]
-
-                # filter out weak detections by ensuring the `confidence` is
-                # greater than the minimum confidence
-                print(confidence * 100)
-                if confidence < self.confidence:
+                if not self.new_image_ready:
                     continue
-                count += 1
 
-                # compute the (x, y)-coordinates of the bounding box for the object
-                box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-                (startX, startY, endX, endY) = box.astype("int")
+                # grab the frame from the threaded video stream and resize it
+                # to have a maximum width of 800 pixels
+                frame0 = self.new_image
+                frame = imutils.resize(frame0, width=800)
 
-                # recortar la imagen de la cara
-                crop_frame = frame[startY:endY,startX:endX]
+                # grab the frame dimensions and convert it to a blob
+                (h, w) = frame.shape[:2]
+                blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 1.0,(300, 300), (104.0, 177.0, 123.0))
 
-                #image = imutils.resize(frame0, width=800)
-                #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                
-                # Eye alignment
-                #this_bb = dlib.rectangle(startX,startY,endX,endY)
-                #face_aligned = self.fa.align(image, gray, this_bb)
+                # pass the blob through the network and obtain the detections and predictions
+                self.detector.setInput(blob)
+                detections = self.detector.forward()
+                count = 0  
 
-                # Volver a cambiar el formato a imagen
-                face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
-                #face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
-                self.pub_cara.publish(face_frame)
+                for i in range(0, detections.shape[2]):
+                    # extract the confidence (i.e., probability) associated with the prediction
+                    confidence = detections[0, 0, i, 2]
 
-            # clear image ready flag to process more
-            self.new_image_ready = False
+                    # filter out weak detections by ensuring the `confidence` is
+                    # greater than the minimum confidence
+                    if verbose:
+                        print(confidence * 100)
+                    if confidence < self.confidence:
+                        continue
+                    count += 1
+
+                    # compute the (x, y)-coordinates of the bounding box for the object
+                    box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                    (startX, startY, endX, endY) = box.astype("int")
+
+                    # recortar la imagen de la cara
+                    crop_frame = frame[startY:endY,startX:endX]
+
+                    #image = imutils.resize(frame0, width=800)
+                    #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                    
+                    # Eye alignment
+                    #this_bb = dlib.rectangle(startX,startY,endX,endY)
+                    #face_aligned = self.fa.align(image, gray, this_bb)
+
+                    # Volver a cambiar el formato a imagen
+                    face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
+                    #face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
+                    self.pub_cara.publish(face_frame)
+
+                # clear image ready flag to process more
+                self.new_image_ready = False
+
+        self.rate.sleep()
 
     def callback(self,data):
         if self.new_image_ready:
@@ -98,6 +114,24 @@ class face_detector_node:
             self.new_image_ready = True
         except CvBridgeError as e:
             print(e)
+
+    def handle_command_face_detection(self,req):
+		
+		#Check whether we start the node or we stop it
+        if req.task_command == "on":
+            self.active = True
+            if self.verbose:
+                rospy.loginfo("[face_detection_node] Received command: ON")
+            
+            return True
+        elif req.task_command == "off":
+            self.active = False
+            if self.verbose:
+                rospy.loginfo("[face_detection_node] Received command: OFF")
+                
+            return True
+        else:
+            return False
 
 def main(args):
     rospy.init_node('face_detector_node', anonymous=True)

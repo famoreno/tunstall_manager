@@ -25,6 +25,7 @@ class Face_recognition_node:
         self.bridge = CvBridge()
         self.crop_face_ready = False
         self.detected_face_ready = False
+        self.verbose = False
 
 
         # load our serialized face embedding model from disk
@@ -96,7 +97,8 @@ class Face_recognition_node:
                 self.detected_face = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
                 self.detected_face_ready = True
             except CvBridgeError as e:
-                print(e)
+                if self.verbose:
+                    print(e)
 
 def main(args):
     rospy.init_node('face_recognizer_node', anonymous=True)
