@@ -9,17 +9,17 @@ from std_msgs.msg import String
 
 # TODO: 
 # 
-class TSensorType (Enum):
-    DOOR = auto()
-    PIR = auto()
-    CHAIR = auto()
-    UNKNOWN = auto()
+#class TSensorType (Enum):
+ #   DOOR = auto()
+ #   PIR = auto()
+  #  CHAIR = auto()
+   # UNKNOWN = auto()
 
 class TSensor:
 	sensor_id : 0
 	sensor_position = (0.0,0.0)
 	sensor_room = "Unknown"
-	sensor_type = TSensorType.UNKNOWN
+	sensor_type = "Unknown"
 	sensor_status = False
 
 class tunstall_manager_node:
