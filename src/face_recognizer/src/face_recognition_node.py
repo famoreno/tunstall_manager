@@ -18,11 +18,14 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class Face_recognition_node:
     def __init__(self) -> None:
+        # node parameters
         self.sub = rospy.Subscriber('face',Image,self.callback)
         self.pub_nombre = rospy.Publisher('nombre',String,queue_size=10)
         self.pub_cara = rospy.Publisher('recognized_face', Image,queue_size=10)
         self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
+
+        # local operation parameters
         self.crop_face_ready = False
         self.detected_face_ready = False
         self.verbose = False
@@ -49,45 +52,47 @@ class Face_recognition_node:
 
 
         while rospy is not shutdown():
-            if not self.detected_face_ready:
-                continue
 
-            # construct a blob for the face ROI, then pass the blob
-		    # through our face embedding model to obtain the 128-d
-		    # quantification of the face
+            if self.detected_face_ready:
 
-            
-            # la variable face coge el valor del topic recibido por el nodo anterior
-            face = self.detected_face
+                # construct a blob for the face ROI, then pass the blob
+                # through our face embedding model to obtain the 128-d
+                # quantification of the face
 
-            #
-            faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),(0, 0, 0), swapRB=True, crop=False)
-            embedder.setInput(faceBlob)
-            vec = embedder.forward()
-		    # perform classification to recognize the face
-            preds = recognizer.predict_proba(vec)[0]
-            j = np.argmax(preds)
-            proba = preds[j]
-            name = le.classes_[j]
-            #print(name)
+                
+                # la variable face coge el valor del topic recibido por el nodo anterior
+                face = self.detected_face
 
-            # draw the bounding box of the face along with the associated
-		    # probability
-            text = "{}: {:.2f}%".format(name, proba * 100)
-            #y = startY - 10 if startY - 10 > 10 else startY + 10
-            #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
-            cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+                #
+                faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),(0, 0, 0), swapRB=True, crop=False)
+                embedder.setInput(faceBlob)
+                vec = embedder.forward()
+                # perform classification to recognize the face
+                preds = recognizer.predict_proba(vec)[0]
+                j = np.argmax(preds)
+                proba = preds[j]
+                name = le.classes_[j]
+                #print(name)
 
-            # show the output image (publicada como topic mediante ROS)
-            face_frame = self.bridge.cv2_to_imgmsg(face)
-            self.pub_cara.publish(face_frame)
-             
+                # draw the bounding box of the face along with the associated
+                # probability
+                text = "{}: {:.2f}%".format(name, proba * 100)
+                #y = startY - 10 if startY - 10 > 10 else startY + 10
+                #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
+                cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-            # Pronunciar el nombre en voz alta
-            # reset flag
-            self.detected_face_ready = False
+                # show the output image (publicada como topic mediante ROS)
+                face_frame = self.bridge.cv2_to_imgmsg(face)
+                self.pub_cara.publish(face_frame)
+                
 
-            #
+                # Pronunciar el nombre en voz alta
+                # reset flag
+                self.detected_face_ready = False
+
+            # sleep until frame rate is achieved
+            self.rate.sleep()
+
     #leer el topic de face_detection_node
     def callback(self,data):
             if self.detected_face_ready:

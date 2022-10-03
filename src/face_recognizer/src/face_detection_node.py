@@ -25,13 +25,15 @@ from face_recognizer.srv import command_face_detection
 
 class face_detector_node:
     def __init__(self) -> None:
+        # node parameters
         self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
         self.pub_cara = rospy.Publisher('face', Image,queue_size=10)
         self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
         self.confidence = 0.9
+        
+        # operation parameters
         self.new_image_ready = False
-        self.rate = rospy.Rate(1)
         self.active = False
         self.verbose = False
 
@@ -104,7 +106,8 @@ class face_detector_node:
                 # clear image ready flag to process more
                 self.new_image_ready = False
 
-        self.rate.sleep()
+            # sleep until frame rate is achieved
+            self.rate.sleep()
 
     def callback(self,data):
         if self.new_image_ready:
