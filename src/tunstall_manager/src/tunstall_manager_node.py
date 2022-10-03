@@ -4,16 +4,16 @@ import numpy as np
 import rospy
 import sys
 import json
-from enum import Enum
+from enum import Enum, auto
 from std_msgs.msg import String
 
 # TODO: 
 # 
-#class TSensorType (Enum):
- #   DOOR = auto()
- #   PIR = auto()
-  #  CHAIR = auto()
-   # UNKNOWN = auto()
+class TSensorType (Enum):
+	DOOR = auto()
+	PIR = auto()
+	CHAIR = auto()
+	UNKNOWN = auto()
 
 class TSensor:
 	sensor_id : 0
@@ -53,11 +53,27 @@ class tunstall_manager_node:
 		return
     
 	def load_sensors_from_file(self):
-		self.sensor_database = json.load(self.sensor_file)
-		for i in self.sensor_database['emp_details']:
-			print(i)
+		json_file = open(self.sensor_file,)
+		self.sensor_db_dict = json.load(json_file)
+		for sensor in self.sensor_db_dict['sensor_db']:
+			# for debugging
+			print(sensor) 
+			self.set_sensor_type(sensor)
+			print(sensor) # for debug
 
-
+			# convert to TSensor and add to the database
+			# self.sensor_database[sensor["id"]]
+			
+	# auxiliary methods
+	def set_sensor_type(self,sensor):
+		if sensor['type'] == 'CHAIR' : 
+			sensor['type'] = TSensorType.CHAIR
+		elif sensor['type'] == 'DOOR':
+			sensor['type'] = TSensorType.DOOR
+		elif sensor['type'] == 'PIR':
+			sensor['type'] = TSensorType.PIR
+		else:
+			sensor['type'] = TSensorType.UNKNOWN
 
 def main(args):
   rospy.init_node('tunstall_manager_node', anonymous=True)
