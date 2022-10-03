@@ -58,7 +58,6 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    command_face_detection.srv
-   #Service2.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -119,6 +118,12 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+)
+
+catkin_install_python(PROGRAMS 
+	src/face_detection_node.py
+	src/face_recognition_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Declare a C++ library
