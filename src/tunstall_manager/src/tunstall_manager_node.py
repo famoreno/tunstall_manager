@@ -7,6 +7,8 @@ import json
 from enum import Enum, auto
 from std_msgs.msg import String
 
+from tunstall_manager.srv import command_tunstall_manager,command_save_file
+
 # TODO: 
 # 
 class TSensorType (Enum):
@@ -29,6 +31,16 @@ class tunstall_manager_node:
 		self.rate = rospy.Rate(1)
 		self.sensor_database = None
 		self.sensor_file = rospy.get_param('~sensorFile')
+
+		#Service to start/stop surveillance mode
+		
+		self.srv = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
+		
+		#Service to register sensor changes
+
+		self.srv = rospy.service('~command_save_file', command_save_file, self.handle_command_save_file)
+
+
 
 		self.load_sensors_from_file()
 
@@ -74,6 +86,37 @@ class tunstall_manager_node:
 			sensor['type'] = TSensorType.PIR
 		else:
 			sensor['type'] = TSensorType.UNKNOWN
+
+	def handle_command_tunstall_manager(self,req):
+
+		#Check whether we start the node or we stop it
+		if req.task_command == "on":
+			self.active = True
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] Received command: ON")
+				
+				return True
+
+		elif req.task_command == "off":
+			self.active = False
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] Received command: OFF")
+				
+			return True
+		else:
+			return False
+
+	def handle_command_save_file(self,req):
+		#Check if we save the state of the sensor
+		if req.task_command == "save":
+			self.active = True
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] Recieved command: SAVE")
+
+				return True
+			
+			
+
 
 def main(args):
   rospy.init_node('tunstall_manager_node', anonymous=True)
