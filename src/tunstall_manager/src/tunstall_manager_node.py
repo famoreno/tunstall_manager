@@ -7,7 +7,7 @@ import json
 from enum import Enum, auto
 from std_msgs.msg import String
 
-from tunstall_manager.srv import command_tunstall_manager,command_save_file
+from tunstall_manager.srv import command_tunstall_manager,command_save_file,command_delete_all_history,command_delete_single_history
 
 # TODO: 
 # 
@@ -40,7 +40,13 @@ class tunstall_manager_node:
 
 		self.srv = rospy.service('~command_save_file', command_save_file, self.handle_command_save_file)
 
+		#Service to restart databse
 
+		self.srv = rospy.service('~command_delete_all_history', command_delete_all_history, self.handle_command_delete_all_history)
+
+		#Service to delete a single element of the history
+
+		self.srv = rospy.service('~command_delete_single_history', command_delete_single_history, self. handle_command_delete_single_history)
 
 		self.load_sensors_from_file()
 
@@ -65,8 +71,10 @@ class tunstall_manager_node:
 		return
     
 	def load_sensors_from_file(self):
-		json_file = open(self.sensor_file,)
+		json_file = open(self.sensor_file,"r")
 		self.sensor_db_dict = json.load(json_file)
+		json_file.close()
+
 		for sensor in self.sensor_db_dict['sensor_db']:
 			# for debugging
 			print(sensor) 
@@ -106,7 +114,7 @@ class tunstall_manager_node:
 		else:
 			return False
 
-	def handle_command_save_file(self,req):
+	def handle_command_save_file(self,sensor,req):
 		#Check if we save the state of the sensor
 		if req.task_command == "save":
 			self.active = True
@@ -114,6 +122,91 @@ class tunstall_manager_node:
 				rospy.loginfo("[tunstall_manager_node] Recieved command: SAVE")
 
 				return True
+			
+			# auxiliary method to convert sensor variable to a string type
+			if sensor['type'] == TSensorType.CHAIR : 
+				sensor['type'] = 'CHAIR'
+			elif sensor['type'] == TSensorType.DOOR:
+				sensor['type'] = 'DOOR'
+			elif sensor['type'] == TSensorType.PIR:
+				sensor['type'] = 'PIR'
+			elif sensor['type'] == TSensorType.UNKNOWN:
+				sensor['type'] = 'UNKOWN'
+
+			# Saving the data on a Json file
+			json_file = open(self.sensor_file,"w")
+			self.sensor_db_dict = json_file
+
+			for sensor in self.sensor_db_dict['sensor_db']:
+				#sensorValue is a custom variable that contains if the sensor is  on/off at any given moment
+				sensor ["status"] = sensorValue
+
+			json.dump(self.sensor_db_dict, json_file)
+			json_file.close()
+
+		else: 
+			return False
+
+	def handle_command_delete_all_history(req,self,sensor):
+		#check if we delete all history
+		if req.task_command == "restart":
+			self.active = True
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] Recieved command: RESTART")
+
+				return True
+
+		# auxiliary method to convert sensor variable to a string type
+			if sensor['type'] == TSensorType.CHAIR : 
+				sensor['type'] = 'CHAIR'
+			elif sensor['type'] == TSensorType.DOOR:
+				sensor['type'] = 'DOOR'
+			elif sensor['type'] == TSensorType.PIR:
+				sensor['type'] = 'PIR'
+			elif sensor['type'] == TSensorType.UNKNOWN:
+				sensor['type'] = 'UNKOWN'
+
+		# Restarting database
+			json_file = open(self.sensor_file,"w")
+			self.sensor_db_dict = json_file
+
+			for sensor in self.sensor_db_dict['sensor_db']:
+				#sensorValue is a custom variable that contains if the sensor is  on/off at any given moment
+				sensor ["status"] = False
+
+			json.dump(self.sensor_db_dict, json_file)
+			json_file.close()
+
+	def handle_command_delete_single_history(req,sensor,self):
+		#check if we want delete a single element
+		if req.task_command == "delete":
+			self.active = True
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] Recieved command: DELETE")
+
+				return True
+			
+			# auxiliary method to convert sensor variable to a string type
+			if sensor['type'] == TSensorType.CHAIR : 
+				sensor['type'] = 'CHAIR'
+			elif sensor['type'] == TSensorType.DOOR:
+				sensor['type'] = 'DOOR'
+			elif sensor['type'] == TSensorType.PIR:
+				sensor['type'] = 'PIR'
+			elif sensor['type'] == TSensorType.UNKNOWN:
+				sensor['type'] = 'UNKOWN'
+
+			# deleting file
+			json_file = open(self.sensor_file,"w")
+			self.sensor_db_dict = json_file
+
+			
+
+			
+
+
+
+
 			
 			
 
