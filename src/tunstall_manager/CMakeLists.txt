@@ -58,9 +58,9 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
    FILES
    command_tunstall_manager.srv
-   command_save_file.srv
-   command_delete_single_history.srv
-   command_delete_all_history.srv
+   command_delete_file.srv
+
+   
  )
 
 ## Generate actions in the 'action' folder

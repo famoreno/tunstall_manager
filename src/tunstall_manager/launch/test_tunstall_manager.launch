@@ -2,5 +2,6 @@
     <!-- This node manages the sensoors -->
     <node name="tunstall_manager" pkg="tunstall_manager" type="tunstall_manager_node.py" output="screen" >
         <param name="sensorFile" value="$(find tunstall_manager)/data/sensorFile.json"/>
+        <param name="verbose" value="true"/>
     </node>
 </launch>
