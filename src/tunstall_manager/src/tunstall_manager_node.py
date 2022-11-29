@@ -100,103 +100,56 @@ class tunstall_manager_node:
 
 				if code == "AR" : 
 					#sensor['type'] = "DOOR"
-					aux = False
-					encontrado = False
-					for sensor in self.sensor_db_dict['sensor_db']:
-						# print("id: ", type(int(id)))
-						# print("sensor id: ", type(sensor['id']))
-
-						if int(id) == sensor['id']:
-							sensor['status'] = [aux,timestamp]
-							encontrado = True
-							if self.verbose:
-								# for debugging
-								print(sensor) 
-							break
-						
-					if not encontrado:
-						rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
+					if self.check_type(id,"DOOR"):
+						aux = False
+						self.add_to_history(aux, timestamp, id)
+					else:
+						print("Warning: This kind of sensor does not use this code")
 
 				elif code == "AQ" : 
 					#sensor['type'] = "DOOR"
-					aux = True
-					encontrado = False
-					for sensor in self.sensor_db_dict['sensor_db']:
-						# print("id: ", type(int(id)))
-						# print("sensor id: ", type(sensor['id']))
-
-						if int(id) == sensor['id']:
-							sensor['status'] = [aux,timestamp]
-							encontrado = True
-							if self.verbose:
-								# for debugging
-								print(sensor) 
-							break
-						
-					if not encontrado:
-						rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
+					if self.check_type(id,"DOOR"):
+						aux = True
+						self.add_to_history(aux, timestamp, id)
+					else:
+						print("Warning: This kind of sensor does not use this code")
+				
 
 				elif code == "BA" : 
 					#sensor['type'] = "CHAIR"
-					aux = True
-					encontrado = False
-					for sensor in self.sensor_db_dict['sensor_db']:
-						# print("id: ", type(int(id)))
-						# print("sensor id: ", type(sensor['id']))
-
-						if int(id) == sensor['id']:
-							sensor['status'] = [aux,timestamp]
-							encontrado = True
-							if self.verbose:
-								# for debugging
-								print(sensor) 
-							break
-						
-					if not encontrado:
-						rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
+					if self.check_type(id,"CHAIR"):
+						aux = True
+						self.add_to_history(aux, timestamp, id)
+					else:
+						print("Warning: This kind of sensor does not use this code")
 
 				elif code == "AZ" : 
 					#sensor['type'] = "CHAIR"
-					aux = False
-					encontrado = False
-					for sensor in self.sensor_db_dict['sensor_db']:
-						# print("id: ", type(int(id)))
-						# print("sensor id: ", type(sensor['id']))
-
-						if int(id) == sensor['id']:
-							sensor['status'] = [aux,timestamp]
-							encontrado = True
-							if self.verbose:
-								# for debugging
-								print(sensor) 
-							break
-						
-					if not encontrado:
-						rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
+					if self.check_type(id,"CHAIR"):
+						aux = False
+						self.add_to_history(aux, timestamp, id)
+					else:
+						print("Warning: This kind of sensor does not use this code")
+					
 
 				elif code == "BH" : 
 					#sensor['type'] = "PIR"
-					aux = True
-					encontrado = False
-					for sensor in self.sensor_db_dict['sensor_db']:
-						# print("id: ", type(int(id)))
-						# print("sensor id: ", type(sensor['id']))
-
-						if int(id) == sensor['id']:
-							sensor['status'] = [aux,timestamp]
-							encontrado = True
-							if self.verbose:
-								# for debugging
-								print(sensor) 
-							break
-						
-					if not encontrado:
-						rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
-
-						######
-
+					if self.check_type(id,"PIR"):
+						aux = True
+						self.add_to_history(aux, timestamp, id)
+					else:
+						print("Warning: This kind of sensor does not use this code")
 					
-	def compare_code(self, aux, timestamp):
+				
+					
+	def check_type(self, id, in_type):
+		for sensor in self.sensor_db_dict['sensor_db']:
+			if int(id) == sensor['id']:
+				print("sensor['type']: "sensor['type'] )
+				return sensor['type'] == in_type
+		#return False
+					
+	def add_to_history(self, aux, timestamp, id):
 
 		encontrado = False
 		for sensor in self.sensor_db_dict['sensor_db']:
