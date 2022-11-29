@@ -255,7 +255,20 @@ class tunstall_manager_node:
 
 	
 	def handle_command_tunstall_manager(self,req):
-		#Check whether we start the node or we stop it
+		#Check whether we start ase = None
+		self.sensor_file = rospy.get_param('~sensorFile')
+		self.verbose = rospy.get_param('~verbose')
+		self.active = True
+
+		#Service to start/stop surveillance mode
+		
+		self.srv = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
+		
+		self.srv = rospy.Service('~command_delete_file',command_delete_file, self.handle_command_delete_file)
+
+		self.load_sensors_from_file()
+
+        # load sensor the node or we stop it
 		if req.task_command == "on":
 			self.active = True
 			if self.verbose:
