@@ -196,7 +196,23 @@ class tunstall_manager_node:
 						######
 
 					
+	def compare_code(self, aux, timestamp):
 
+		encontrado = False
+		for sensor in self.sensor_db_dict['sensor_db']:
+			# print("id: ", type(int(id)))
+			# print("sensor id: ", type(sensor['id']))
+
+			if int(id) == sensor['id']:
+				sensor['status'] = [aux,timestamp]
+				encontrado = True
+				if self.verbose:
+					# for debugging
+					print(sensor) 
+				break
+						
+			if not encontrado:
+				rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
 					
 
         # find the sensor in the database,
