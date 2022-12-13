@@ -145,7 +145,7 @@ class tunstall_manager_node:
 	def check_type(self, id, in_type):
 		for sensor in self.sensor_db_dict['sensor_db']:
 			if int(id) == sensor['id']:
-				print("sensor['type']: "sensor['type'] )
+				print("sensor['type']: ", sensor['type'] )
 				return sensor['type'] == in_type
 		#return False
 					

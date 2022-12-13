@@ -84,6 +84,7 @@ class Face_recognition_node:
                 # show the output image (publicada como topic mediante ROS)
                 face_frame = self.bridge.cv2_to_imgmsg(face)
                 self.pub_cara.publish(face_frame)
+                # self.pub_nombre.publish(String(name))
                 
 
                 # Pronunciar el nombre en voz alta
