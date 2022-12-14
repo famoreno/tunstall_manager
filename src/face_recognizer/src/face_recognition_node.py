@@ -20,8 +20,8 @@ class Face_recognition_node:
     def __init__(self) -> None:
         # node parameters
         self.sub = rospy.Subscriber('face',Image,self.callback)
-        self.pub_nombre = rospy.Publisher('nombre',String,queue_size=10)
-        self.pub_cara = rospy.Publisher('recognized_face', Image,queue_size=10)
+        self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=10)
+        self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=10)
         self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
 
@@ -85,7 +85,6 @@ class Face_recognition_node:
                 face_frame = self.bridge.cv2_to_imgmsg(face)
                 self.pub_cara.publish(face_frame)
                 # self.pub_nombre.publish(String(name))
-                
 
                 # Pronunciar el nombre en voz alta
                 # reset flag

@@ -40,12 +40,15 @@ class TSensor:
 class tunstall_manager_node:
 	def __init__(self) -> None:
 		self.pub_alarm = rospy.Publisher('/tunstall/result', String, queue_size=10)
-		self.sub = rospy.Subscriber('/tunstall/trigger', String, self.tunstall_trigger_callback)
+		self.pub_task = rospy.Publisher('/mqtt2ros', String, queue_size=10)
+		self.sub_trigger = rospy.Subscriber('/tunstall/trigger', String, self.tunstall_trigger_callback)
+		self.sub_recognizer = rospy.Subscriber('/face_recognizer/name',String, self.face_recognized_callback)
 		self.rate = rospy.Rate(1)
 		self.sensor_database = None
 		self.sensor_file = rospy.get_param('~sensorFile')
 		self.verbose = rospy.get_param('~verbose')
 		self.active = True
+		self.escenario = "None"
 
 		#Service to start/stop surveillance mode
 		
@@ -54,6 +57,8 @@ class tunstall_manager_node:
 		self.srv = rospy.Service('~command_delete_file',command_delete_file, self.handle_command_delete_file)
 
 		self.load_sensors_from_file()
+
+		
 
         # load sensor database from json file
         # sensors = {}
@@ -69,9 +74,36 @@ class tunstall_manager_node:
 		while not rospy.is_shutdown():
 			self.rate.sleep()
 	
+	def face_recognized_callback(self,msg):
+
+		if self.escenario == "CAFE":
+			## callback from the topic "nombre" 
+			if msg == "Unknown":
+				text_to_say = "Ese no es su asiento, levántese, por favor"
+
+			elif msg == "Roberto":
+				text_to_say = "tu café es el de la izquierda, sin azucar"
+
+			elif msg == "Paco":
+				text_to_say = "Tu café es el de la derecha, con leche sin lactosa"
+
+			else: 
+				text_to_say = "Lo siento, no traigo café para usted"
+
+			# json to say something
+
+		elif self.escenario == "CANSANCIO":
+			text_to_say = "Deberías tomarte un descanso, " + msg
+			
+			# json to say something
+
+
 	def tunstall_trigger_callback(self,msg):
 		 if self.active:
 			#
+				nombre = self.nombre
+
+
 				split_data = msg.data.split("_")
 				code_id= split_data[0]
 				code = code_id[0:2]
@@ -139,13 +171,87 @@ class tunstall_manager_node:
 						self.add_to_history(aux, timestamp, id)
 					else:
 						print("Warning: This kind of sensor does not use this code")
+
+
+
+				#if the chair sensor is activated go there and say something
+				if code == "BA":
+					if id == "03":
+						desired_id = "03"
+						target = "paco"
+					elif id == "02":
+						desired_id = "02"
+						target = "roberto"
+
+					for sensor in self.sensor_db_dict['sensor_db']:
+						if sensor["id"] == desired_id and (((sensor["status"][-1][2]-sensor["status"][-2][2])/3600)>1):
+
+							# check if the door is open
+							if id == "03":
+								desired_id = "00"
+								target = "paco"
+
+							elif id == "02":
+								desired_id = "01"
+								target = "roberto"
+
+							for sensor in self.sensor_db_dict['sensor_db']:
+								if sensor["id"] == desired_id and sensor ["status"][-1][1] == True:
+									# if the door is open the scenario is "CANSANCIO"
+
+									## go to to the position of the chair sensor with some correction
+									# json message with the information to move
+
+									## activate face_detection_node 
+									# json message to activate face_detection_node
+
+									## activate speak node
+									# json message to activate sepak_node
+									self.escenario = "CANSANCIO"
+
+
+								else :
+
+									self.escenario = "PUERTA BLOQUEA EL PASO"
+
+									## activate speak node
+									# json message to activate sepak_node
+
+									
+
+					# if the robot is neither in "CANSANCIO" scenario nor in "PUERTA BLOQUEA EL PASO" scenario
+					# check if it is in "C"
+					if self.escenario != "CANSANCIO" and self.escenario != "PUERTA BLOQUEA EL PASO":
+						# id:03 - id:00
+					#	if id == "03":
+					#		desired_id = "00"
+					#		target = "paco"
+					#	elif id == "02":
+					#		desired_id = "01"
+					#		target = "roberto"
+					#	for sensor in self.sensor_db_dict['sensor_db']:
+					#		if sensor["id"] == desired_id and sensor ["status"][-1][1] == True:
+
+
+								## go to to the position of the chair sensor with some correction
+								# json message with the information to move
+
+								## activate the face_detection_node node
+								# json message to activate face_detection_node
+								self.escenario = "CAFE"
+
+				
+
+					
+					
+
 					
 				
 					
 	def check_type(self, id, in_type):
 		for sensor in self.sensor_db_dict['sensor_db']:
 			if int(id) == sensor['id']:
-				print("sensor['type']: ", sensor['type'] )
+				print("sensor['type']: "sensor['type'] )
 				return sensor['type'] == in_type
 		#return False
 					
