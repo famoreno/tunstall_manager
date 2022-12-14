@@ -1,0 +1,53 @@
+<!-- 
+    AMCL is a particle filter based localization system 
+    By default it subscribes to laser on topic /scan
+    The map on topic /map
+-->
+
+<launch>
+  # Use two lasers if available for localization!
+  <node pkg="topic_tools" type="relay" name="laser1_relay" args="/laser_scan /scan" />
+  <node pkg="topic_tools" type="relay" name="laser2_realy" args="/laser2_scan /scan" />
+  
+  <arg name="launch_prefix" default="" />
+
+  <node pkg="amcl" type="amcl" name="amcl" launch-prefix="$(arg launch_prefix)">
+    ### Initial pose
+    <param name="initial_pose_x" value="0.3"/>         #m
+    <param name="initial_pose_y" value="4.55"/>        #m
+    <param name="initial_pose_a" value="3.141592"/>         #rad
+    
+    ### Filter params
+    <param name="min_particles" value="100"/>
+    <param name="max_particles" value="1000"/> 
+    <param name="kld_err" value="0.05"/>
+    <param name="kld_z" value="0.99"/>
+    <param name="update_min_d" value="0.1"/>    ### Translational movement required before performing a filter update.
+    <param name="update_min_a" value="0.1"/>    ### Rotational movement required before performing a filter update. (rad)
+    <param name="resample_interval" value="1"/> 
+    <param name="transform_tolerance" value="2.2"/>
+    <param name="recovery_alpha_slow" value="0.001"/>
+    <param name="recovery_alpha_fast" value="0.1"/>
+    <param name="gui_publish_rate" value="10.0"/>       # Max rate(Hz) for scans/paths published for visualization (-1.0 disable)
+    
+
+    ### Laser model
+    <param name="laser_model_type" value="likelihood_field"/>   ###The likelihood_field model uses only: z_hit and z_rand.
+    <param name="laser_z_hit" value="0.5"/>
+    <param name="laser_z_rand" value="0.5"/>
+    <param name="laser_z_short" value="0.05"/>
+    <param name="laser_z_max" value="0.05"/>
+    
+    ### Odometry model
+    <param name="odom_model_type" value="diff"/>
+    <param name="odom_alpha1" value="0.2"/>     ### expected noise in odometry's rotation estimate from the rotational component 
+    <param name="odom_alpha2" value="0.2"/>     ### expected noise in odometry's rotation estimate from the translational component     
+    <param name="odom_alpha3" value="0.2"/>     ### expected noise in odometry's translation estimate from the translational component 
+    <param name="odom_alpha4" value="0.2"/>     ### expected noise in odometry's translation estimate from the rotational component
+    <param name="odom_alpha5" value="0.1"/>     ### Translation-related noise parameter (only used if model is "omni").
+    <param name="odom_frame_id" value="odom"/>
+    <param name="base_frame_id" value="base_link"/>
+    <param name="global_frame_id" value="map"/>
+    <param name="tf_broadcast" value="true"/>
+  </node>
+</launch>

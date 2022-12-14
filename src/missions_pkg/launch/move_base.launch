@@ -1,0 +1,52 @@
+<!-- 
+  Launch file for the MOVE_BASE node which handles costmaps and trajectory planification 
+  It publishes cmd_vel commands to the robot base
+  
+  Subscribes to Topic /odom for speed estimation!
+-->
+<launch>  
+  <arg name="launch_prefix" default="" />
+  <arg name="global_planner_plugin" default="navfn/NavfnROS" />
+  <arg name="local_planner_plugin" default="dwa_local_planner/DWAPlannerROS" />
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" launch-prefix="$(arg launch_prefix)">
+  
+    # Select Planners to Use
+    <param name="base_global_planner" value="$(arg global_planner_plugin)"/>
+    <param name="base_local_planner" value="$(arg local_planner_plugin)"/>
+    
+    ## Planners Params
+    <rosparam file="$(find missions_pkg)/launch/planner_common_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/planner_global_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/planner_local_params.yaml" command="load" />
+    
+    ## Costmaps
+    <rosparam file="$(find missions_pkg)/launch/costmap_global_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_local_params.yaml" command="load" />
+    
+    # Load Sensor namespaces for the Obstacles Layer (global and local)
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    
+    
+ <!--   
+   ## Planners
+    <rosparam file="$(find missions_pkg)/launch/global_planner_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/local_planner_params.yaml" command="load" />
+    
+    ## Costmaps
+    <rosparam file="$(find missions_pkg)/launch/costmap_global_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_local_params.yaml" command="load" />
+    
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="global_costmap/obstacles" />
+    <rosparam file="$(find missions_pkg)/launch/costmap_common_params.yaml" command="load" ns="local_costmap/obstacles" />
+    <param name="base_global_planner" value="$(arg global_planner_plugin)"/>
+    
+    -->
+    
+  </node>
+</launch>

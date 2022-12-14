@@ -1,0 +1,36 @@
+########################################################################
+# Global parameters for the COSTMAP_2D pkg (navigation stack)
+########################################################################
+global_costmap:
+  # Set plugings.
+  plugins:
+    - {name: static_layer,    type: "costmap_2d::StaticLayer"}
+    - {name: obstacle_layer,  type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+#    - {name: proxemic_layer,  type: "social_navigation_layers::ProxemicLayer"}
+
+  global_frame: map
+  robot_base_frame: base_link
+  update_frequency: 1.0             # The frequency in Hz for the map to be updated.
+  publish_frequency: 0.5            # The frequency in Hz for the map to be publish display information.
+#  static_map: true
+  rolling_window: false
+  always_send_full_costmap: false
+  robot_radius: 0.25
+  
+  # Plugin parameters
+  obstacle_layer:
+    observation_sources: laser2D #RGBD_laser_u
+    laser2D: {sensor_frame: laser_link, data_type: LaserScan, topic: /laser_scan, marking: true, clearing: true, inf_is_valid: true}
+    RGBD_laser_d: {sensor_frame: base_link, data_type: LaserScan, topic: /camera_down/scan, marking: true, clearing: true, inf_is_valid: true}
+    RGBD_laser_u: {sensor_frame: base_link, data_type: LaserScan, topic: /camera_up/scan, marking: true, clearing: true, inf_is_valid: true}
+ 
+  inflation_layer:
+    inflation_radius: 0.60          # how far away the zero cost point is from obstacle. Must be > robot_radius
+    cost_scaling_factor: 3.0        # decay curve. Setting it higher will make the decay curve more steep
+ 
+  proxemic_layer:
+    amplitude: 254.0
+    covariance: 0.4
+    cutoff: 41.98592
+    factor: 1.0

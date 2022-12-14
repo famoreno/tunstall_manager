@@ -1,0 +1,16 @@
+
+########################################################################
+# Common parameters for the COSTMAP_2D pkg (navigation stack)
+########################################################################
+
+# Common parameters that will be loaded to both Global and Local namespaces
+max_obstacle_height: 1.8        # maximum z to consider an obstacle
+obstacle_range: 3.0             # maximum distance from the robot at which an obstacle will be inserted into the cost map in meters.
+raytrace_range: 4.0             # range in meters at which to raytrace out (clear) obstacles from the map using sensor data.
+
+# Robot footprint or Radius
+#footprint: [ [0.200, -0.0508], [0.1778, -0.0508], [0.1778, -0.1778], [-0.1905, -0.1778], [-0.254, 0], [-0.1905, 0.1778], [0.1778, 0.1778], [0.1778, 0.0508], [0.200, 0.0508] ]
+robot_radius: 0.26
+
+track_unknown_space: false
+footprint_clearing_enabled: true    # If true, the robot footprint will clear (mark as free) the space in which it travels.

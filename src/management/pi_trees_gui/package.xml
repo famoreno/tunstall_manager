@@ -1,0 +1,16 @@
+<package>
+<name>pi_trees_gui</name>
+<version>0.1.1</version>
+<description>Python GUI Library for Behavior Trees</description>
+<maintainer email="jgmonroy@uma.es">Javier Monroy</maintainer>
+<license>GPLv3</license>
+
+<buildtool_depend>catkin</buildtool_depend>
+
+<run_depend>rospy</run_depend>
+
+<!-- Exclude for now -->
+<!-- exec_depend>python-pygraphviz</exec_depend -->
+<!-- exec_depend>python-pygraph</exec_depend -->>
+
+</package>

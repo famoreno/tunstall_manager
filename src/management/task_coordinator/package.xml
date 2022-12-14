@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package>
+
+  <name>task_coordinator</name>
+  <version>1.0.0</version>
+  <description>
+    This pkg implements the ROS-API for the mobile robots of the Machine Perception and Intelligent Robotics research group.
+    It can be used, for example, in conjuntion with the mqtt_bride pkg for commanding a robot through Mosquitto (over the web).
+  </description>
+
+  <maintainer email="jgmonroy@uma.es">Javier G. Monroy</maintainer>  
+  <author email="jgmonroy@uma.es"> Javier G. Monroy</author>
+  <license>GPLv3</license> 
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>  
+  <build_depend>roslib</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>angles</build_depend>
+  <build_depend>task_manager</build_depend>
+  <build_depend>diagnostic_msgs</build_depend>
+  <build_depend>cmake_modules</build_depend>   <!-- A common repository for CMake Modules which are not distributed with CMake but are commonly used by ROS packages. -->
+                                               <!-- https://github.com/ros/cmake_modules/blob/0.3-devel/README.md -->
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>roslib</run_depend>
+  <run_depend>task_manager</run_depend>
+  <run_depend>diagnostic_msgs</run_depend>
+  <run_depend>cmake_modules</run_depend>       <!-- For aditional dependencies such as Eigen -->
+
+
+</package>

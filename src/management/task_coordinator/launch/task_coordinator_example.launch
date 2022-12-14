@@ -1,0 +1,13 @@
+<launch>
+<!-- mqtt -->
+<node pkg="mqtt_bridge" type="mqtt_bridge_node" name="mqtt" output="screen"/>
+<!-- task coordinator -->
+<node pkg="task_coordinator" type="task_coordinator_node" name="task_coordinator" respawn="false" output="screen"/>
+
+<!-- task manager -->
+<node pkg="task_manager" type="bt_manager.py" name="bt_manager" respawn="false" output="screen" >
+	<param name="verbose" value="True"/>
+        <param name="gui" value="true"/>
+</node>
+
+</launch>

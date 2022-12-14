@@ -1,0 +1,18 @@
+<!-- 
+  MAP CREATOR using gmapping. It needs odometry and laser scans to operate. 
+  It can use a .bag file being played or real-time laser scans
+
+  TO save the map to file use: "rosrun map_server map_saver"
+-->
+
+<launch>
+  <remap from="scan" to="laser_scan"/> <!-- topic id where laser scans are published -->
+  <include file="$(find giraff_ros_driver)/launch/test.launch" />
+  <include file="$(find missions_pkg)/launch/urg_lidar.launch" />
+
+  <node name="gmapping" pkg="gmapping" type="slam_gmapping"  >
+    <param name="odom_frame" value="odom" /> 
+  </node>
+
+  <node name="rviz_player" pkg="rviz" type="rviz" args="-d $(find missions_pkg)/rviz/simbot_patrol.rviz"/>
+</launch>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+
+  <name>task_manager</name>
+  <version>1.0.0</version>
+  <description>
+    This pkg implements a behaviour tree to manage the tasks the robot is commanded to carry out.
+    This pkg offers services to add and remove tasks.  
+  </description>
+
+  <maintainer email="jgmonroy@uma.es">Javier Monroy</maintainer>  
+  <author email="jgmonroy@uma.es"> Javier Monroy</author>
+  <license>GPLv3</license> 
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>geometry_msgs</build_depend>  
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>move_base_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>  
+  
+  <run_depend>rospy</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>tf</run_depend>  
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>move_base_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>  
+
+</package>

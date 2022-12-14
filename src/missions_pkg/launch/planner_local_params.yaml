@@ -1,0 +1,88 @@
+###############################################################################################
+# Base_local_planner parameters - Trajectory generator based on costmaps
+#
+# The base_local_planner package provides a controller that drives a mobile base in the plane. 
+###############################################################################################
+
+
+# Set here the parameters of all available Global planners.
+# Use Namespaces to separate parameters
+
+# IF use DWA Planner
+#-----------------------------------
+DWAPlannerROS:
+
+ max_vel_trans: 0.4         #always positive
+ min_vel_trans: 0.05        #always positive
+ max_vel_x: 0.4             #always positive
+ min_vel_x: -0.075            #negative if back movement is allowed
+ max_vel_y: 0.0
+ min_vel_y: 0.0
+ max_vel_theta: 0.69          #rad 0.8rad = 45deg (aprox)
+ min_vel_theta: 0.05          #abs value
+ 
+ acc_lim_x: 2               #with DWA accelerations must be [desired_acc * controller_frequency]
+ acc_lim_y: 0.0
+ acc_lim_theta: 5.0         #with DWA accelerations must be [desired_acc * controller_frequency]
+ acc_lim_trans: 0.2
+ 
+ prune_plan: true
+ xy_goal_tolerance: 0.3     #m
+ yaw_goal_tolerance: 0.4    #rad
+ 
+ trans_stopped_vel: 0.05
+ theta_stopped_vel: 0.05
+ sim_time: 1.75
+ sim_granularity: 0.05
+ angular_sim_granularity: 0.05
+ path_distance_bias: 32         #high value to follow the globla plan
+ goal_distance_bias: 15         #a bit lower than path_bias 
+ occdist_scale: 0.05            #small to avoid getting stuck continuously
+ stop_time_buffer: 0.5
+ oscillation_reset_dist: 0.1
+ oscillation_reset_angle: 0.25
+ forward_point_distanvce: 0.325
+ scaling_speed: 0.1
+ max_scaling_factor: 0.2
+ vx_samples: 10
+ vy_samples: 1
+ vth_samples: 15
+ use_dwa: true                 #set high accelerations if used
+  
+
+
+# IF use Trajectory Rollout Planner
+#-----------------------------------
+TrajectoryPlannerROS:   
+  max_vel_x: 0.4                #0.4
+  min_vel_x: 0.05                # necessary to ovecome friction (if <0 then can move backwards)
+  max_vel_theta: 0.9            #rad 0.8rad = 45deg (aprox)
+  min_vel_theta: -0.9
+  min_in_place_vel_theta: 0.05   #rad/s
+  
+  escape_vel: -0.1              #m/s speed for recovery scape
+
+
+  acc_lim_x: 0.1                #m/s^2
+  acc_lim_y: 0.0
+  acc_lim_theta: 0.4             #rad/s^2
+  acc_limit_trans: 0.1
+
+  holonomic_robot: false
+  
+  
+#Forward Simulation Parameters
+  sim_time: 2.0
+  sim_granularity: 0.05
+  angular_sim_granularity: 0.05
+  vx_samples: 10
+  vtheta_samples: 15
+#  controller_frequency: 20
+  
+#Trajectory Scoring Parameters  
+  pdist_scale: 2.5          #The weighting for how much the controller should stay close to the path it was given (default 0.6)
+  gdist_scale: 3.7          #The weighting for how much the controller should attempt to reach its local goal, also controls speed (default 0.8#)
+  occdist_scale: 0.2       #The weights for obstacles
+  oscillation_reset_dist: 0.05
+  prune_plan: true
+  dwa: false            #it reduces a lot the movement speed - usually requires higher accelerations

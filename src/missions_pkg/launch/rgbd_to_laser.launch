@@ -1,0 +1,37 @@
+
+<!-- Launch file for the conversion of a 3D RGB-D pointcloud to a 2D Laser Scan -->
+
+<launch>
+
+    <!--arg "camera" should uniquely identify the device. -->  
+    <arg name="camera" default="camera" />
+    
+    ### NODELET_MANAGER ###
+    <node pkg="nodelet" type="nodelet" name="$(arg camera)_nodelet_manager" output="screen" respawn="false" args="manager"/>
+
+    <node pkg="nodelet" type="nodelet" name="$(arg camera)_pointcloud_to_laserscan" args="load pointcloud_to_laserscan/pointcloud_to_laserscan_nodelet $(arg camera)_nodelet_manager">
+
+        <remap from="cloud_in" to="$(arg camera)/depth_registered/points"/>
+        <remap from="scan" to="$(arg camera)/scan"/>
+	    <param name="target_frame" value="base_link" />                # Leave "" to output scan in pointcloud frame "$(arg camera)_link"
+        <rosparam>
+            transform_tolerance: 0.01
+            min_height: 0.15
+            max_height: 1.50
+
+            angle_min: -1.5708              # -M_PI/2
+            angle_max: 1.5708               # M_PI/2
+            angle_increment: 0.0087         # M_PI/360.0
+            scan_time: 0.3333
+            range_min: 0.26
+            range_max: 8.0
+            use_inf: true
+
+            # Concurrency level, affects number of pointclouds queued for processing, thread number governed by nodelet manager
+            # 0 : Detect number of cores
+            # 1 : Single threaded
+            # 2->inf : Parallelism level
+            concurrency_level: 1
+        </rosparam>
+    </node>
+</launch>

@@ -1,0 +1,7 @@
+string      task_name
+uint8       task_priority
+bool        task_permanence
+string      task_impact
+string[]    task_args
+---
+int32       task_id

@@ -1,0 +1,94 @@
+
+<!-- 
+    General mission file for the Giraff robot     
+-->
+
+<launch>
+  
+  #============================================================#
+  #                     HW DRIVERS and TF                      #
+  #============================================================#
+  ### URDF model "giraff_robot" ###
+  <include file="$(find missions_pkg)/launch/giraff_urdf.launch" />
+  
+  # GiraffX-base driver
+  <include file="$(find missions_pkg)/launch/giraff_ros_driver.launch" />
+  
+  # Hokuyo LaserScanner
+  <include file="$(find missions_pkg)/launch/urg_lidar.launch" />
+  
+  # Fish-eye cam
+  <include file="$(find missions_pkg)/launch/usb_cam.launch" />
+
+  # Astra_Cameras  
+  <include file="$(find astra_camera)/launch/multi_astra.launch" />
+  
+  ### NODELET FOR POINTCLOUD TO LASER_SCAN ###
+  <include file="$(find missions_pkg)/launch/rgbd_to_laser.launch">
+	<arg name="camera" value="camera_up" />
+  </include>
+    
+  #============================================================#
+  #                    NAVIGATION                              #
+  #============================================================#
+  
+  # MOVE BASE  
+  <include file="$(find missions_pkg)/launch/move_base.launch" >
+    <arg name="global_planner_plugin" value="navfn/NavfnROS"/>    
+	  <arg name="local_planner_plugin" value="dwa_local_planner/DWAPlannerROS"/>
+  </include>
+  
+  # MAP SERVER
+  <include file="$(find missions_pkg)/launch/map_server.launch" >
+    <arg name="map_file" value="$(find missions_pkg)/maps/map4.yaml" />
+  </include>
+  
+  # AMCL
+  <include file="$(find missions_pkg)/launch/amcl_diff.launch" />
+  
+  #RF2O
+  <include file="$(find rf2o_laser_odometry)/launch/rf2o_laser_odometry.launch" />
+  
+<!--
+  # RELOCALIZATOR
+  <include file="$(find missions_pkg)/launch/movecare/movecare_robot_relocalizator.launch" />
+  
+  # NAV_ASSISTANT
+  <include file="$(find missions_pkg)/launch/movecare/movecare_nav_assistant.launch" />
+
+  -->
+  <!-- <include file="$(find missions_pkg)/launch/movecare/movecare_keyboard_control.launch" /> -->
+ 
+    
+  #============================================================#
+  #                        UTILS                               #
+  #============================================================#
+
+  ### TASK MANAGER and COORDINATOR, MQTT ###
+  <include file="$(find missions_pkg)/launch/task_coordinator.launch"  />
+
+  ### Speech ###
+  <include file="$(find speech)/launch/speech_node.launch"  />
+
+<!--    
+  ### BATTERY MANAGER ###
+  <include file="$(find missions_pkg)/launch/movecare/movecare_battery_manager.launch" />
+  
+  ### GRAPH ###
+  <include file="$(find missions_pkg)/launch/movecare/movecare_topological_graph.launch"  />
+    
+  ### TOPOLOGICAL LOCALIZATION ###
+  <include file="$(find missions_pkg)/launch/movecare/movecare_topological_localization.launch"  />
+
+  ### ROBOT STATUS PUBLISHER ###
+  <include file="$(find missions_pkg)/launch/movecare/movecare_robot_status_publisher.launch"  />
+
+  ### AUTODOCKING ###
+  <include file="$(find missions_pkg)/launch/movecare/movecare_autodocking.launch" />
+    
+  -->
+  
+  ### RVIZ ###
+  <node name="rviz_player" pkg="rviz" type="rviz" args="-d $(find missions_pkg)/rviz/simbot_patrol.rviz"/>
+  
+</launch>

@@ -1,0 +1,6 @@
+<!-- launch astra cameras -->
+<launch>
+    <node pkg="tf" type="static_transform_publisher" name="astra_broadcaster1" args="1 0 0 0 0 0 1 base_link camera_01_depth_optical_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="astra_broadcaster2" args="1 0 0 0 0 0 1 base_link camera_02_depth_optical_frame 100" />
+    <include file="$(find astra_camera)/launch/multi_astra.launch" />
+</launch>

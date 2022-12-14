@@ -1,0 +1,279 @@
+<?xml version="1.0"?>
+<!-- 
+ URDF MODEL of GIRAFF-X
+ - Here we set Fixed and movable joints
+ - To move the parts in RVIZ, publish sensor_msgs/JointState messages.
+ - robot_state_publisher node calculates all of transforms between the different parts. 
+ - The resulting transform tree is then used to display all of the shapes in Rviz.
+-->
+<robot name="giraff">
+
+  ### Define colors
+  <material name="body_color">
+    <color rgba="0.01 0.37 0.14 1"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.41 0.83 0.96 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+    <material name="grey">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.9 0.0 0.0 1"/>
+  </material>
+  <material name="green">
+    <color rgba="0.0 0.9 0.0 1"/>
+  </material>
+
+  # Base
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.20" radius="0.26"/>
+      </geometry>
+      <material name="body_color"/>
+      <origin rpy="0 0 0" xyz="0 0 0.13"/>              # Displacement/rotation of the part center with respect the reference_link (base_link)
+    </visual>
+  </link>
+
+
+  # Left wheel
+  <link name="left_wheel">
+    <visual>
+      <origin rpy="1.57075 0 0" xyz="0 0 0"/>           # Displacement/rotation of the part center with respect the reference_link
+      <geometry>
+        <cylinder length="0.02" radius="0.10"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin rpy="0 0 0" xyz="0 0.24 0.10"/>             # Displacement/rotation of the reference_link with respect parent reference_link (TF)
+  </joint>
+
+
+  # Right wheel
+  <link name="right_wheel">
+    <visual>
+      <origin rpy="1.57075 0 0" xyz="0 0 0"/>           # Displacement/rotation of the part center with respect the reference_link
+      <geometry>
+        <cylinder length="0.02" radius="0.10"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin rpy="0 0 0" xyz="0 -0.24 0.10"/>            # Displacement/rotation of the reference_link with respect parent reference_link (TF)
+  </joint>
+
+
+  # Body
+  <link name="body">
+    <visual>
+      <geometry>
+        <box size="0.30 0.20 0.45"/>
+      </geometry>
+      <material name="body_color"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_body" type="fixed">
+    <parent link="base_link"/>
+    <child link="body"/>
+    <origin xyz="0.0 0.0 0.455"/>
+  </joint>
+  
+  
+  # Neck (this tf is considered fixed)
+  <link name="neck">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.41"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+
+  <joint name="body_to_neck" type="fixed">
+    <parent link="body"/>
+    <child link="neck"/>
+    <origin xyz="0.0 0.0 0.43"/>
+  </joint>
+  
+  
+  # Head  
+  <link name="head">
+    <visual>
+      <geometry>
+        <box size="0.05 0.30 0.56"/>
+      </geometry>
+      <material name="body_color"/>
+    </visual>
+  </link>
+  
+  <joint name="neck_to_head" type="fixed">
+    <parent link="neck"/>
+    <child link="head"/>
+    <origin xyz="0 0 0.485"/>
+  </joint>
+  
+  
+  # Screen (this tf is published by the giraff_ros_driver using Tilt)
+  <link name="screen">
+    <visual>
+      <geometry>
+        <box size="0.05 0.22 0.40"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  
+  <joint name="neck_to_screen" type="revolute">
+    <parent link="head"/>
+    <child link="screen"/>
+    <origin xyz="0.02 0.0 0.0" rpy="0 0 0" />
+    <limit effort="1000.0" lower="-2.094395102" upper="2.094395102" velocity="0.5"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  
+  
+  
+  
+  ## SENSORS AND ACTUATORS ##
+  #=========================#
+  # FISH_EYE
+  <link name="usb_camera_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.02"/>
+      </geometry>
+      <material name="black"/>
+      <origin rpy="0 1.57079 0" xyz="0 0.0 0.0"/>     # Displacement/Rotation of the center with respect usb_camera_link 
+    </visual>
+  </link>
+  
+  <joint name="screen_to_usb_camera_link" type="fixed">
+    <parent link="screen"/>
+    <child link="usb_camera_link"/>
+    <origin rpy="0 0.3927 0" xyz="0.05 0.0 0.20"/>
+  </joint>
+  
+  
+  # Hokuyo front
+  <link name="laser">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <material name="black"/>
+      <origin rpy="0 0 0" xyz="0.2 0.0 -0.03"/>     # Displacement/Rotation of the center with respect laser
+    </visual>
+  </link>
+  
+  <joint name="base_link_to_laser" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser"/>
+    <origin rpy="0 0 0" xyz="0.2062 0.0 0.0"/>     # Set Manually z=0.28
+  </joint>
+  
+  
+  # RGBD_DOWN
+  # For ASTRA rgbd cameras ref_link is located 10cm in y-axis
+  <link name="camera_down_link">
+    <visual>
+      <geometry>
+        <box size="0.04 0.16 0.03"/>
+      </geometry>
+      <material name="black"/>
+      <origin rpy="0 0 0" xyz="0 -0.10 0.0"/>     # Displacement/Rotation of the center with respect camera_down_link
+    </visual>
+  </link>
+  
+  <joint name="base_link_to_camera_down_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_down_link"/>
+    <origin rpy="0 -0.2 0" xyz="0.06 0.10 0.985"/>     # Manually set
+  </joint>
+  
+  
+  # RGBD_UP
+  # For ASTRA rgbd cameras ref_link is located 10cm in y-axis
+  <link name="camera_up_link">
+    <visual>
+      <geometry>
+        <box size="0.04 0.16 0.03"/>
+      </geometry>
+      <material name="black"/>
+      <origin rpy="0 0 0" xyz="0 -0.06 0.0"/>     # Displacement/Rotation of the center with respect camera_up_link
+    </visual>
+  </link>
+  
+  <joint name="base_link_to_camera_up_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_up_link"/>
+    <!-- <origin rpy="0 0.8 0" xyz="0.09 0.10 1.65"/> -->     # Manually set
+    <origin rpy="0.0062 0.7527 0" xyz="0.09 0.06 1.5737"/>             # Calibration
+  </joint>
+  
+  
+  # red button
+  <link name="red_button">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.03"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  
+  <joint name="body_to_red_button" type="fixed">
+    <parent link="body"/>
+    <child link="red_button"/>
+    <origin xyz="0.11 0.05 0.225"/>
+  </joint>
+  
+  # green button
+  <link name="green_button">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.03"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+  
+  <joint name="body_to_green_button" type="fixed">
+    <parent link="body"/>
+    <child link="green_button"/>
+    <origin xyz="0.11 -0.05 0.225"/>
+  </joint>
+  
+  # e-stop button
+  <link name="estop_button">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.02"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  
+  <joint name="body_to_estop_button" type="fixed">
+    <parent link="body"/>
+    <child link="estop_button"/>
+    <origin rpy="0 1.5708 0" xyz="0.16 0.0 0.075"/>
+  </joint>
+  
+</robot>

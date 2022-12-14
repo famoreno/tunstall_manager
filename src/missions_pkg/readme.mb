@@ -1,0 +1,25 @@
+Si falta algo de la navegacion
+sudo apt-get install ros-noetic-navigation
+
+Complitar, si da fallo , probar compilar los paquetes de uno en uno:
+catkin_make --only-pkg-with-deps PAQUETE
+
+Ejecuar girraff_nav.launch para que el robot navege al punto que se le mande atraves de Rviz
+
+source ./devel/setup.bash
+Gmapping:
+
+Guardar mapa 
+rosrun map_server map_saver -f <map_name>
+
+
+Atra camera:
+http://wiki.ros.org/astra_camera
+
+reiniciar pc para antes de lanzar no do para que se terminen que configurar las reglas udev
+
+para verlo en rviz, ay que publicar una transformada de map a camera_link (astra_test.launch)
+
+Camera usb:
+
+Nesesita punblixar transformada estatica para visualizar en rviz.

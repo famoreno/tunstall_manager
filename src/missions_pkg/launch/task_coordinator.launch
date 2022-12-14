@@ -1,0 +1,23 @@
+<launch>
+<param name="user_id" value="famd" />
+<!-- mqtt -->
+<node pkg="mqtt_bridge" type="mqtt_bridge_node" name="mqtt" output="screen">
+	<param name="host" value="150.214.109.137"/>
+	<param name="MQTT_topicName" value="UMA_GiraffVerde"/>
+	<param name="MQTT_topics_subscribe" value="interventions/famd/INFO,famd/tunstall"/>
+	<param name="port" value="8002"/>
+</node>
+
+<!-- task coordinator -->
+<node pkg="task_coordinator" type="task_coordinator_node" name="task_coordinator" respawn="false" output="screen">
+	<param name="verbose" value="True"/>
+	<param name="local_env_url" value ="$(find missions_pkg)/maps/mapir_topo_map.json"/>
+</node>
+
+<!-- task manager -->
+<node pkg="task_manager" type="bt_manager.py" name="bt_manager" respawn="false" output="screen" >
+	<param name="verbose" value="True"/>
+        <param name="gui" value="true"/>
+</node>
+
+</launch>

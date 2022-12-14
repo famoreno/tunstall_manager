@@ -1,0 +1,4 @@
+int8 task_id
+string info
+---
+bool ack

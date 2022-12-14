@@ -1,0 +1,40 @@
+<!-- 
+  Launch file for the GIRAFF_ROS_DRIVER to control a Giraff base mobile platform
+  publishes: \odom \batteries \avr_comms \cmd_vel_avr
+-->
+<launch>  
+  <arg name="launch_prefix" default="" />   
+
+  <node pkg="giraff_ros_driver" type="giraff_node" respawn="true" name="giraff_node" launch-prefix="$(arg launch_prefix)" output="screen">
+    ##  Config
+    <param name="giraff_avr_port" value="/dev/ttyS1"/>
+    <param name="publish_odometry_over_tf" value="false"/>  # FALSE if rf2o_laser_ometry is running
+    <param name="odom_topic" value="odom_giraff" />         # Always published    
+    <param name="freq" value="100"/>                        # loop frequency
+    <param name="verbose" value="false"/>                   # verbose
+    
+    ## TF frames
+    <param name="base_frame_id" value="base_link"/>
+    <param name="odom_frame_id" value="odom"/>
+    <param name="stalk_frame_id" value="neck"/>
+    <param name="head_frame_id" value="head"/>
+    <param name="screen_frame_id" value="screen"/>
+    
+    ## Robot config
+    <param name="controller_mode" value="0"/>           # Set to 0 (default) or 2 (old models)
+    <param name="max_linear_vel" value="0.4"/>          # [m/s]
+    <param name="max_angular_vel" value="0.6"/>         # [rad/s]
+    <param name="linear_acceleration" value="0.2"/>     # [m/s^2]
+    <param name="angular_acceleration" value="0.4"/>    # [rad/s^2]
+    <param name="virtual_gear_ratio" value="20"/>       # [only mode 0] max spin difference between right and left wheels
+    <param name="cmd_vel_timeout" value="0.5"/>         # [sec] time after which stop the robot if no new cmd_vel command is received
+
+    <param name="tilt_bias" value="0.6"/>               # to set the tilt=0 perpendicular
+    
+    ## Battery
+    <param name="battery_technology" value="NIMH"/>     # NIMH, LION, LIPO, LIFE, NICD, LIMN
+    <param name="battery_design_capacity" value="4.4"/> # Capacity in Ah (design capacity)
+    <param name="battery_serial_number" value="Giraff_battery"/>     # Serial number or identification name
+
+  </node>
+</launch>

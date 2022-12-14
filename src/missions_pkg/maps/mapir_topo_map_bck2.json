@@ -1,0 +1,19 @@
+{
+    "format":2,
+    "spaces":[
+        {"category":"lab","label":"2.3.6","location":{"y":5.15,"x":5.65}},
+        {"category":"lab","label":"2.3.6i","location":{"y":-1.95,"x":5.05}},
+        {"category":"lab","label":"2.3.7","location":{"y":4.05,"x":0.35}},
+        {"category":"lab","label":"2.3.7i","location":{"y":-0.35,"x":-0.25}},
+        {"category":"desk","label":"Alberto","location":{"y":5.4,"x":-0.8}},
+        {"category":"desk","label":"Mario","location":{"y":4.15,"x":6}},
+        {"category":"desk","label":"Angel","location":{"y":-0.4,"x":5.05}},
+        {"category":"desk","label":"Javier","location":{"y":0.6,"x":-1.05}},
+        {"category":"corridor","label":"Corridor1","location":{"y":8.5,"x":7.65}},
+        {"category":"corridor","label":"Corridor2","location":{"y":8.5,"x":-1.7}}
+    ],
+    "userid":"famd",
+    "objects":[
+        {"type":"docking_station","location":{"y":0.4,"x":4.15},"label":"docking_station","space_label":"2.3.6"}
+    ]
+}

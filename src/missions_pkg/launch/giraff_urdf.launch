@@ -1,0 +1,16 @@
+
+<!-- URDF model of the robot (giraff) -->
+<launch>
+
+	<param name="robot_description" textfile="$(find missions_pkg)/urdf_models/giraff.urdf" />
+	<param name="use_gui" value="False"/>
+    
+    # Tool for setting and publishing dynamic joint state values for a given URDF
+    # Not useful for fixed joints robots
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    
+    # Pkg to publish the state of a robot to tf (visualize the robot URDF model according to its location).    
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+
+</launch>
