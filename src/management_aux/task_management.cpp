@@ -36,6 +36,7 @@ if (mqtt_topic[0] == "tunstall") {
         return;
     }
 }
+
 if (mqtt_topic[0] == "interventions")
 {
     // ----------------
@@ -115,16 +116,30 @@ if (mqtt_topic[0] == "interventions")
 
 # bt manager
 elif task_name == "tunstall_manager":
-            # Load additional params of this task
-            message = string(task_args[0])
+    # Load additional params of this task
+    message = string(task_args[0])
 
-            # Create Task (subtree)
-            task = subtree_tunstall_manager(message)
-            if task.task_created is True:
-                task_tree = task.ROOT
-                task_tree.priority = task_prior
-                task_tree.permanence = task_perm
-                self.insert_new_task_with_priority(task_tree, req.task_impact)
+    # Create Task (subtree)
+    task = subtree_tunstall_manager(message)
+    if task.task_created is True:
+        task_tree = task.ROOT
+        task_tree.priority = task_prior
+        task_tree.permanence = task_perm
+        self.insert_new_task_with_priority(task_tree, req.task_impact)
+
+
+elif task_name == "face_detection":
+    # task_args = ["boolean to start/stop"]
+    state = task_args[0]
+
+    # Create Task (subtree of Tasks)
+    task = subtree_face_detection(state) # Añadir en bt_task_lib
+
+    if task.task_created is True:
+        task_tree = task.ROOT
+        task_tree.priority = task_prior
+        task_tree.permanence = task_perm
+        self.insert_new_task_with_priority(task_tree, req.task_impact)
 
 
 # bt library
