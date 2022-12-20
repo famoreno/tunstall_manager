@@ -3,3 +3,5 @@ build/
 devel/
 .vscode/
 **faces_dataset
+src/hwdrivers/
+src/utils/
