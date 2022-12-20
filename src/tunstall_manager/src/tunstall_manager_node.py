@@ -8,6 +8,7 @@ import sys
 import json
 from enum import Enum, auto
 from std_msgs.msg import String
+from diagnostic_msgs.msg import KeyValue
 import datetime
 
 from tunstall_manager.srv import command_tunstall_manager, command_delete_file
@@ -40,7 +41,7 @@ class TSensor:
 class tunstall_manager_node:
 	def __init__(self) -> None:
 		self.pub_alarm = rospy.Publisher('/tunstall/result', String, queue_size=10)
-		self.pub_task = rospy.Publisher('/mqtt2ros', String, queue_size=10)
+		self.pub_task = rospy.Publisher('/mqtt2ros', KeyValue, queue_size=10)
 		self.sub_trigger = rospy.Subscriber('/tunstall/trigger', String, self.tunstall_trigger_callback)
 		self.sub_recognizer = rospy.Subscriber('/face_recognizer/name',String, self.face_recognized_callback)
 		self.rate = rospy.Rate(1)
