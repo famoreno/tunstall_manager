@@ -11,7 +11,7 @@
 <!-- task coordinator -->
 <node pkg="task_coordinator" type="task_coordinator_node" name="task_coordinator" respawn="false" output="screen">
 	<param name="verbose" value="True"/>
-	<param name="local_env_url" value ="$(find missions_pkg)/maps/mapir_topo_map.json"/>
+	<param name="local_env_url" value ="$(find missions_pkg)/maps/mapir_topo_map_tunstall.json"/>
 </node>
 
 <!-- task manager -->
