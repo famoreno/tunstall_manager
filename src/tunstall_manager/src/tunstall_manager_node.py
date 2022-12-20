@@ -47,9 +47,14 @@ class tunstall_manager_node:
 		self.rate = rospy.Rate(1)
 		self.sensor_database = None
 		self.sensor_file = rospy.get_param('~sensorFile')
+		self.move_command = rospy.get_param('~move_command')
+		self.speak_command = rospy.get_param('~speak_command')
 		self.verbose = rospy.get_param('~verbose')
 		self.active = True
 		self.escenario = "None"
+
+
+		#kv_dic = {'interventions/famd/INFO': 'value'}
 
 		#Service to start/stop surveillance mode
 		
@@ -202,12 +207,25 @@ class tunstall_manager_node:
 
 									## go to to the position of the chair sensor with some correction
 									# json message with the information to move
+									self.load_move_command_from_file()
+									self.order_db_dict['time']['t'] = timestamp
+									self.order_db_dict['data']['label'] = target
+									value = str(self.order_db_dict)
+									kv_dic = {'interventions/famd/INFO': value}
+									self.pub_task.publish(kv_dic)
 
 									## activate face_detection_node 
 									# json message to activate face_detection_node
 
 									## activate speak node
 									# json message to activate sepak_node
+									self.load_speak_command_from_file()
+									self.order_db_dict['time']['t'] = timestamp
+									self.order_db_dict['data']['text'] = self.sub_recognizer
+									value = str(self.order_db_dict)
+									kv_dic = {'interventions/famd/INFO': value}
+									self.pub_task.publish(kv_dic)
+
 									self.escenario = "CANSANCIO"
 
 
@@ -280,6 +298,17 @@ class tunstall_manager_node:
         # according to its type, perfom an action (basically GO and RECOGNIZE and TALK)
 		
 		#return 
+
+	def load_move_command_from_file(self):
+		json_file = open(self.move_command,"r")
+		self.order_db_dict = json.load(json_file)
+		json_file.close()
+
+	def load_speak_command_from_file(self):
+		json_file = open(self.speak_command,"r")
+		self.order_db_dict = json.load(json_file)
+		json_file.close()
+
     
 	def load_sensors_from_file(self):
 		json_file = open(self.sensor_file,"r")
