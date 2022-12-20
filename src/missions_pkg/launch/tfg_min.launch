@@ -20,7 +20,7 @@
 <!-- 
   # Fish-eye cam
   <include file="$(find missions_pkg)/launch/usb_cam.launch" />
--->
+
 
   # Astra_Cameras  
   <include file="$(find astra_camera)/launch/multi_astra.launch" />
@@ -30,7 +30,7 @@
   <include file="$(find missions_pkg)/launch/rgbd_to_laser.launch">
 	<arg name="camera" value="camera_up" />
   </include>
-
+-->
   #============================================================#
   #                    NAVIGATION                              #
   #============================================================#
@@ -81,23 +81,27 @@
     <param name="io_method" value="mmap"/>
   </node>
   
+
+
   <!-- Provides a service to capture an image from the webcam and send it via MQTT encoded as base64 -->
-  <node name="get_image_node" pkg="app_actions" type="get_image_node.py" output="screen" >
+  <!--<node name="get_image_node" pkg="app_actions" type="get_image_node.py" output="screen" >
     <param name="mqtt_topic" value="image" />
-  </node>
+  </node>-->
 
   <!-- Provides a service to start the surveillance mode -->
-  <node name="surveillance_node" pkg="app_actions" type="surveillance_mode_node.py" output="screen" >
+  <!--<node name="surveillance_node" pkg="app_actions" type="surveillance_mode_node.py" output="screen" >
     <param name="verbose" value="false" />
-  </node>
+  </node>-->
 
   <!-- Publishes the pose and battery of the robot via MQTT -->
-  <node name="get_robot_status_node" pkg="app_actions" type="get_robot_status_node.py" output="screen" >
+  <!--<node name="get_robot_status_node" pkg="app_actions" type="get_robot_status_node.py" output="screen" >
     <param name="mqtt_topic" value="status" />
     <param name="pose_topic" value="/amcl_pose" />
     <param name="battery_topic" value="/giraff_node/battery" />
-  </node>
+  </node>-->
 
+  ### Tustall Manager
+  <include file="$(find missions_pkg)/launch/tunstall_manager.launch" />
 
   ### Speech ###
   <include file="$(find speech)/launch/speech_node.launch"  />
