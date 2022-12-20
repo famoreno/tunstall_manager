@@ -5,3 +5,4 @@ devel/
 **faces_dataset
 src/hw_drivers/
 src/utils/
+**__pycache__
