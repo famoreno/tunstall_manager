@@ -45,6 +45,7 @@ class tunstall_manager_node:
 		self.sub_recognizer = rospy.Subscriber('/face_recognizer/name',String, self.face_recognized_callback)
 		self.rate = rospy.Rate(1)
 		self.sensor_database = None
+		self.db_counter = 0
 
 		self.sensor_file = rospy.get_param('~sensorFile')
 		self.move_command_file = rospy.get_param('~move_command_file')
@@ -58,7 +59,7 @@ class tunstall_manager_node:
 		self.time_threshold = 1 # hours
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(5*60), self.timer_callback)
+		rospy.Timer(rospy.Duration(0.5*60), self.timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -167,6 +168,18 @@ class tunstall_manager_node:
 	# callback to check CANSANCIO
 	def timer_callback(self, event):
 		rospy.loginfo("[tunstall_manager_node] WATCHDOG: 1m")
+		
+		""" if self.db_counter == 0:
+			self.send_face_detect_command()
+		elif self.db_counter == 1:
+			self.send_move_command("paco")
+		elif self.db_counter == 2:
+			self.send_speak_command("HOLA")
+		elif self.db_counter == 3:
+			self.send_wait_command()
+		
+		self.db_counter += 1 """
+
 		# check time for all CHAIR sensors and trigger alarm if needed
 		for sensor in self.sensor_db_dict['sensor_db']:
 			if sensor["type"] == TSensorType.CHAIR:
@@ -408,7 +421,7 @@ class tunstall_manager_node:
 		# create message and publish it
 		msg = KeyValue()
 		msg.key = "interventions/famd/INFO"
-		msg.value = json.dump(self.speak_command)
+		msg.value = json.dumps(self.speak_command)
 		self.pub_task.publish(msg)
 
 
@@ -421,7 +434,7 @@ class tunstall_manager_node:
 		# create message and publish it
 		msg = KeyValue()
 		msg.key = "interventions/famd/INFO"
-		msg.value = json.dump(self.move_command)
+		msg.value = json.dumps(self.move_command)
 		self.pub_task.publish(msg)	
 
 	def send_face_detect_command(self):
@@ -431,7 +444,7 @@ class tunstall_manager_node:
 		# create message and publish it
 		msg = KeyValue()
 		msg.key = "interventions/famd/INFO"
-		msg.value = json.dump(self.face_detect_command)
+		msg.value = json.dumps(self.face_detect_command)
 		self.pub_task.publish(msg)	
 
 	def send_wait_command(self):
@@ -441,7 +454,7 @@ class tunstall_manager_node:
 		# create message and publish it
 		msg = KeyValue()
 		msg.key = "interventions/famd/INFO"
-		msg.value = json.dump(self.wait_command)
+		msg.value = json.dumps(self.wait_command)
 		self.pub_task.publish(msg)			
 				
 	# check if the type of the sensor with the provided ID is correct 					
