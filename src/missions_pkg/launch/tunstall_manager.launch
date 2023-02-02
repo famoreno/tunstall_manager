@@ -2,6 +2,10 @@
     <!-- This node manages the sensoors -->
     <node name="tunstall_manager" pkg="tunstall_manager" type="tunstall_manager_node.py" output="screen" >
         <param name="sensorFile" value="$(find tunstall_manager)/data/sensorFile.json"/>
+        <param name="move_command_file" value="$(find tunstall_manager)/data/move_command.json"/>
+        <param name="speak_command_file" value="$(find tunstall_manager)/data/speak_command.json"/>
+        <param name="face_detect_command_file" value="$(find tunstall_manager)/data/face_detect_command.json"/>
+        <param name="wait_command_file" value="$(find tunstall_manager)/data/wait_command.json"/>
         <param name="verbose" value="true"/>
     </node>
 </launch>
