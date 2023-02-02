@@ -1,0 +1,12 @@
+{
+    "id": "4b3d9598-b320-11e7-abc4-cec278b6b50a",
+    "userid": "famd",
+    "ivcode": "INFO",
+    "time": {
+        "temporality": "timestamp",
+        "t":1494256770.105
+    },
+    "data": {
+        "code": "FACE_DETECTION"
+    }
+}
