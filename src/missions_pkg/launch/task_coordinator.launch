@@ -4,7 +4,7 @@
 <node pkg="mqtt_bridge" type="mqtt_bridge_node" name="mqtt" output="screen">
 	<param name="host" value="150.214.109.137"/>
 	<param name="MQTT_topicName" value="UMA_GiraffVerde"/>
-	<param name="MQTT_topics_subscribe" value="interventions/famd/INFO,famd/tunstall"/>
+	<param name="MQTT_topics_subscribe" value="interventions/famd/INFO,tunstall"/>
 	<param name="port" value="8002"/>
 </node>
 

@@ -59,7 +59,7 @@ class tunstall_manager_node:
 		self.time_threshold = 1 # hours
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(0.5*60), self.timer_callback)
+		rospy.Timer(rospy.Duration(5*60), self.timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -225,9 +225,12 @@ class tunstall_manager_node:
 	
 	# a sensor has been triggered
 	def tunstall_trigger_callback(self,msg):
+		if self.verbose:
+			print("Received tunstall trigger")
+
 		if not self.active:
 			return
-
+			
 		split_data = msg.data.split("_")
 		code_id= split_data[0]
 		code = code_id[0:2]
