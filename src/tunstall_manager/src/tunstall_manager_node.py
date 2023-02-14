@@ -167,7 +167,7 @@ class tunstall_manager_node:
 
 	# callback to check CANSANCIO
 	def timer_callback(self, event):
-		rospy.loginfo("[tunstall_manager_node] WATCHDOG: 1m")
+		rospy.loginfo("[tunstall_manager_node] WATCHDOG triggered")
 		
 		""" if self.db_counter == 0:
 			self.send_face_detect_command()
@@ -183,18 +183,54 @@ class tunstall_manager_node:
 		# check time for all CHAIR sensors and trigger alarm if needed
 		for sensor in self.sensor_db_dict['sensor_db']:
 			if sensor["type"] == TSensorType.CHAIR:
+				first_room = sensor["room"]
+				print ("first room = "+ sensor["name"])
 				is_active = sensor["status"][-1][0]
 				time_difference = (rospy.get_time()-sensor["status"][-1][1])/3600
 				# print(sensor["id"], "is_active", is_active, "time_dif", time_difference)
 				print(f'[{sensor["id"]}] = {is_active} for {time_difference}')
 				if is_active and (time_difference > self.time_threshold):
+					print("se ha detectado un uso prolongado de la silla")
 					# this has been sitting for more than one hour
 					# TODO: Check if navigation is possible
-					self.send_move_command(sensor["room"])
-					self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
-					rospy.loginfo("[tunstall_manager_node] TIMER: more than" + self.time_threshold + "hour has passed")
-					self.scenario = "CANSANCIO"
-					return			
+					
+					for sensor in self.sensor_db_dict['sensor_db']:
+						if sensor["type"] == TSensorType.DOOR and sensor["room"] == first_room:
+							my_door = sensor
+							found = True
+							break
+
+					if found:		
+						# puerta abierta
+						if my_door["status"][-1][0] == False:
+							print ("puerta abierta, dirigiéndose al lugar")
+							self.send_move_command(first_room)
+							self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
+							rospy.loginfo("[tunstall_manager_node] TIMER: more than" + str(self.time_threshold) + "hour has passed")
+							self.scenario = "CANSANCIO"
+						else:
+							#puerta cerrada
+							print("puerta cerrada, necesito que me abran la puerta")
+							self.send_speak_command("Necesito que me abran la puerta")
+							self.send_wait_command()
+							self.scenario = "PUERTA CERRADA"
+							rospy.sleep(20)
+
+							for sensor in self.sensor_db_dict['sensor_db']:
+								if sensor["type"] == TSensorType.DOOR and sensor["room"] == first_room and sensor["status"][-1][0] == False:
+									print ("gracias por abrirme la puerta")	
+									self.send_move_command(sensor["room"])
+									self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
+									rospy.loginfo("[tunstall_manager_node] TIMER: more than" + str(self.time_threshold) + "hour has passed")
+									self.scenario = "CANSANCIO"
+								else :
+									print ("la puerta sigue cerrada")
+
+								return
+								
+						
+
+							#return			
 
 
 	# process face recognition result
@@ -230,7 +266,7 @@ class tunstall_manager_node:
 
 		if not self.active:
 			return
-			
+
 		split_data = msg.data.split("_")
 		code_id= split_data[0]
 		code = code_id[0:2]
@@ -259,7 +295,7 @@ class tunstall_manager_node:
 
 		# SCENARIOS:
 		# -- [1] CAFE: A chair is activated, the robot goes there with two cups, recognizes the person and offers their coffee.
-		# -- [2] CANSANCIO: Every 5 minutes, the node checks if any chair has been activated for more than one hour. If so, goes to ask him to get some exercise. (No face recognition)
+		# -- [2] CANSANCIO: Every 5 minutes, the node checks if any chair has been activated for more than one hour. If so, goes to ask him to get some exercise. (No face recognition) ALthough it could use face recognition to say de person's
 		# -- [3] SECURITY: All chairs are activated, the main door is open and the PIR is activated. The robot goes to the PIR, recognizes the face and ask for security if needed.
 		# -- Secondary: in all scenarios, if the robot needs to traverse a closed door, it asks for help, waits some time and if nobody opens it then cancels the mission.
 		
@@ -298,8 +334,14 @@ class tunstall_manager_node:
 		# someone has passed the way
 		elif code == "BH" : 
 			if self.check_type(id,TSensorType.PIR):
+				print("BH triggered, moving")
 				aux = True
 				self.add_to_history(aux, timestamp, id)
+				self.send_move_command("Alberto")
+				self.send_speak_command("Hola ke ase")
+				self.send_move_command("laboratorio1")
+				self.send_wait_command()
+				self.send_face_detect_command()
 			else:
 				print("Warning: This kind of sensor does not use this code")
 
@@ -362,12 +404,12 @@ class tunstall_manager_node:
 
 							## activate speak node
 							# json message to activate speak
-							self.load_speak_command_from_file()
-							self.order_db_dict['time']['t'] = timestamp
-							self.order_db_dict['data']['text'] = self.sub_recognizer + ", llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?"
-							value = str(self.order_db_dict)
-							kv_dic = {'interventions/famd/INFO': value}
-							self.pub_task.publish(kv_dic)
+							#self.load_speak_command_from_file()
+							#self.order_db_dict['time']['t'] = timestamp
+							#self.order_db_dict['data']['text'] = self.sub_recognizer + ", llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?"
+							#value = str(self.order_db_dict)
+							#kv_dic = {'interventions/famd/INFO': value}
+							#self.pub_task.publish(kv_dic)
 							
 							self.send_speak_command()
 
@@ -418,7 +460,7 @@ class tunstall_manager_node:
 	# builds a JSON message to be sent to the robot for talking
 	def send_speak_command(self, text):
 		# complete SAY command
-		self.speak_command["data"]["talkcode"] = text
+		self.speak_command["data"]["text"]["talkcode"] = text
 		self.speak_command["time"]["t"] = rospy.get_time()
 		
 		# create message and publish it
