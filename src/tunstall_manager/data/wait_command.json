@@ -1,3 +1,4 @@
+
 {
     "id": "4b3d9598-b320-11e7-abc4-cec278b6b50a",
     "userid": "famd",
@@ -7,7 +8,7 @@
         "t":1494256770.105
     },
     "data": {
-        "code" : "WAIT_SEC",
-        "duration" : 20
+        "code": "WAIT_SEC",
+        "duration": 20
     }
 }
