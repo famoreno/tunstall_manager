@@ -35,7 +35,7 @@ class face_detector_node:
         # operation parameters
         self.new_image_ready = False
         self.active = False
-        self.verbose = False
+        self.verbose = True
 
         # face detector
         self.protoPath = rospy.get_param('~protoPath')
