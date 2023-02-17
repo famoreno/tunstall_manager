@@ -6,7 +6,7 @@
 			"room" : "2.3.6", 
 			"name" : "Puerta1",
 			"type" : "DOOR",
-			"status" : [[true,0]]
+			"status" : [[false,0]]
 		},
 
 		{
