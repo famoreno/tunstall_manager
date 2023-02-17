@@ -1873,7 +1873,7 @@ class subtree_face_detection_tfg(subtree):
     def __init__(self,command):
         try:
             if face_detection_node_found:
-                self.ROOT = ServiceTask("FACE_DETECTION", "face_detection/task_command", command_face_detection, command, result_cb = self.done_cb, wait_for_service=True, timeout=5, announce=True)
+                self.ROOT = ServiceTask("FACE_DETECTION", "face_detector/command_face_detection", command_face_detection, command, result_cb = None, wait_for_service=True, timeout=5, announce=True)
                 self.task_created = True
             else:
                 rospy.logwarn("[bt_manager] ROS FACE_DETECTION Module NOT FOUND. Task could not be launched")
