@@ -5,9 +5,10 @@
     "ivcode": "INFO",
     "time": {
         "temporality": "timestamp",
-        "t":1494256770.105
+        "t": 1494256770.105
     },
     "data": {
-        "code": "FACE_DETECTION"
+        "code": "FACE_DETECTION",
+        "task_command": "on"
     }
 }

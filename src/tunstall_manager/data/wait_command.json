@@ -9,6 +9,6 @@
     },
     "data": {
         "code": "WAIT_SEC",
-        "duration": 20
+        "duration": "20"
     }
 }
