@@ -185,6 +185,7 @@ class tunstall_manager_node:
 			if sensor["type"] == TSensorType.CHAIR:
 				first_room = sensor["room"]
 				print ("first room = "+ sensor["name"])
+				print(sensor["status"][-1][0])
 				is_active = sensor["status"][-1][0]
 				time_difference = (rospy.get_time()-sensor["status"][-1][1])/3600
 				# print(sensor["id"], "is_active", is_active, "time_dif", time_difference)
