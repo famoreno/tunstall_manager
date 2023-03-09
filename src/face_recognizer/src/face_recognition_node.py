@@ -14,6 +14,8 @@ import sys
 import rospy 
 from cv_bridge import CvBridge, CvBridgeError
 
+from face_recognizer.srv import command_face_recognition
+
 
 
 class Face_recognition_node:
@@ -47,6 +49,9 @@ class Face_recognition_node:
         self.lePath = rospy.get_param('~lePath')
         #lePath = "../../data/train_output/le.pickle"
         le = pickle.loads(open(self.lePath, "rb").read())
+
+        #Service to start/stop recognition mode
+        self.srv = rospy.Service('~command_face_recognition', command_face_recognition, self.handle_command_face_recognition)
 
         print("[INFO face recognizer] parameters loaded")
 
@@ -104,6 +109,25 @@ class Face_recognition_node:
             except CvBridgeError as e:
                 if self.verbose:
                     print(e)
+
+    def handle_command_face_recognition(self,req):
+		
+		#Check whether we start the node or we stop it
+        if req.task_command == "on":
+            self.active = True
+            if self.verbose:
+                rospy.loginfo("[face_recognition_node] Received command: ON")
+            
+            return True
+        elif req.task_command == "off":
+            self.active = False
+            if self.verbose:
+                rospy.loginfo("[face_recognition_node] Received command: OFF")
+                
+            return True
+        else:
+            return False
+
 
 def main(args):
     rospy.init_node('face_recognizer_node', anonymous=True)

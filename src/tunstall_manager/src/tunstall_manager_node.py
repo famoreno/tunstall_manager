@@ -59,7 +59,7 @@ class tunstall_manager_node:
 		self.time_threshold = 1 # hours
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(1*60), self.timer_callback)
+		rospy.Timer(rospy.Duration(2*60), self.timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -238,27 +238,27 @@ class tunstall_manager_node:
 	def face_recognized_callback(self,msg):
 
 		text_to_say = ""
-		if self.scenario == "CAFE":
+		#if self.scenario == "CAFE":
 			## callback from the topic "nombre" 
-			if str(msg.data) == "desconocido":
-				text_to_say = "Ese no es su asiento, levántese, por favor"
+		if str(msg.data) == "desconocido":
+			text_to_say = "Ese no es su asiento, levántese, por favor"
 
-			elif str(msg.data) == "Roberto":
-				text_to_say = "tu café es el de la izquierda, sin azucar"
+		elif str(msg.data) == "Roberto":
+			text_to_say = "tu café es el de la izquierda, sin azucar"
 
-			elif str(msg.data) == "Paco":
-				text_to_say = "Tu café es el de la derecha, con leche sin lactosa"
+		elif str(msg.data) == "Paco":
+			text_to_say = "Tu café es el de la derecha, con leche sin lactosa"
 
-			else: 
-				text_to_say = "Lo siento, no traigo café para usted"
+		else: 
+			text_to_say = "Lo siento, no traigo café para usted"
 
 
-		elif self.scenario == "CANSANCIO":
-			text_to_say = "Deberías tomarte un descanso, " + str(msg.data)
+		#elif self.scenario == "CANSANCIO":
+		#	text_to_say = "Deberías tomarte un descanso, " + str(msg.data)
 
-		else:
-			print(text_to_say)
-			text_to_say = "No hay escenario para esto, " + str(msg.data)
+		#else:
+		#	print(text_to_say)
+		#	text_to_say = "No hay escenario para esto, " + str(msg.data)
 
 		# json to say something
 		print(text_to_say)
@@ -366,9 +366,11 @@ class tunstall_manager_node:
 
 				linked_door_id = "01"
 				linked_door_sensor = self.find_sensor_by_id(linked_door_id)
-				print(linked_door_sensor["status"])
+				#print(linked_door_sensor["status"][-1][0])
+				is_closed = linked_door_sensor["status"][-1][0]
 				
-			
+
+
 			elif id == "02":
 				desired_id = "02"
 				target = "roberto"
@@ -377,13 +379,14 @@ class tunstall_manager_node:
 					
 				linked_door_id = "01"
 				linked_door_sensor = self.find_sensor_by_id(linked_door_id)
-				print(linked_door_sensor)
+				#print(linked_door_sensor["status"][-1][0])
+				is_closed = linked_door_sensor["status"][-1][0]
 				
 					
 
-			# check if the door is open
+			# check if the door is open or closed
 
-			if linked_door_sensor["status"[-1][0]] == False:
+			if is_closed == False:
 				if self.verbose:
 						print("puerta abierta")
 				## go to to the position of the chair sensor with some correction
@@ -393,15 +396,17 @@ class tunstall_manager_node:
 
 						## activate face_detection_node 
 						# json message to activate face_detection_node
-						self.send_face_detect_command_from_file()
+						self.send_face_detect_command("on")
 						if self.verbose:
 							print("detectando cara...")
 
 						## activate speak node
 						# json message to activate speak
-						self.send_speak_command()	
+						self.face_recognized_callback(msg)	
 
-						self.scenario = "CAFE"
+						#self.scenario = "CAFE"
+
+						
 			else:
 				self.scenario = "PUERTA BLOQUEA EL PASO"
 				if self. verbose :
@@ -425,84 +430,20 @@ class tunstall_manager_node:
 
 							## activate face_detection_node 
 							# json message to activate face_detection_node
-							self.send_face_detect_command_from_file()
+							self.send_face_detect_command("on")
 							if self.verbose:
 								print("detectando cara...")
 
 							## activate speak node
 							# json message to activate speak
-							self.send_speak_command()	
+							self.face_recognized_callback(msg)		
 
-							self.scenario = "CAFE"
+							#self.scenario = "CAFE"
 				else :
 							print ("la puerta sigue cerrada")
 
 							return
 
-
-		"""	for sensor in self.sensor_db_dict['sensor_db']:
-				if sensor["id"] == linked_door_id and sensor ["status"][-1][0] == False:
-					if self.verbose:
-						print("puerta abierta")
-
-						## go to to the position of the chair sensor with some correction
-						self.send_move_command(target)							
-						if self.verbose:
-							print("Moviendose a la silla de "+target)
-
-						## activate face_detection_node 
-						# json message to activate face_detection_node
-						self.send_face_detect_command_from_file()
-						if self.verbose:
-							print("detectando cara...")
-
-						## activate speak node
-						# json message to activate speak
-						self.send_speak_command()	
-
-						self.scenario = "CAFE"
-
-
-				else :
-
-					self.scenario = "PUERTA BLOQUEA EL PASO"
-					if self. verbose :
-						print("puerta cerrada")
-					## activate speak node
-					# json message to activate sepak_node
-					self.send_speak_command("Necesito que me abran la puerta")
-					if self. verbose :
-						print ("Necesito que me abran la puerta")
-					self.send_wait_command()
-					self.scenario = "PUERTA CERRADA"
-					rospy.sleep(20)
-
-					for sensor in self.sensor_db_dict['sensor_db']:
-						if sensor["id"] == desired_id and sensor ["status"][-1][1] == True:
-							# if the door is open the scenario is "CANSANCIO"
-							if self.verbose:
-								print("puerta abierta")
-
-								## go to to the position of the chair sensor with some correction
-								self.send_move_command(target)							
-								if self.verbose:
-									print("Moviendose a la silla de "+target)
-
-								## activate face_detection_node 
-								# json message to activate face_detection_node
-								self.send_face_detect_command_from_file()
-								if self.verbose:
-									print("detectando cara...")
-
-								## activate speak node
-								# json message to activate speak
-								self.send_speak_command()	
-
-								self.scenario = "CAFE"
-						else :
-							print ("la puerta sigue cerrada")
-
-							return """
 					
 							
 
