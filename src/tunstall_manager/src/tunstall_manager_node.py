@@ -20,6 +20,13 @@ def to_seconds(date):
 # TODO: 
 # 
 
+class TScenario (Enum):
+	NONE = auto()
+	CAFE = auto()
+	CANSANCIO = auto()
+	SEGURIDAD = auto()
+	PUERTA_CERRADA = auto()
+
 # preguntar por los argumentos de estas clases
 class TSensorType (Enum):
 	DOOR = auto()
@@ -59,7 +66,7 @@ class tunstall_manager_node:
 		self.time_threshold = 1 # hours
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(2*60), self.timer_callback)
+		rospy.Timer(rospy.Duration(0.5*60), self.timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -238,6 +245,9 @@ class tunstall_manager_node:
 	# process face recognition result
 	def face_recognized_callback(self,msg):
 
+		if self.verbose:
+			print(f'Nombre reconocido: {msg.data}')
+
 		text_to_say = ""
 		#if self.scenario == "CAFE":
 			## callback from the topic "nombre" 
@@ -338,7 +348,7 @@ class tunstall_manager_node:
 			else:
 				print("Warning: This kind of sensor does not use this code")
 			
-		# someone has passed the way
+		# someone has passed the way: PIR activated
 		elif code == "BH" : 
 			if self.check_type(id,TSensorType.PIR):
 				print("BH triggered, moving")
@@ -348,7 +358,11 @@ class tunstall_manager_node:
 				# self.send_speak_command("Hola ke ase")
 				# self.send_move_command("laboratorio1")
 				# self.send_wait_command()
+				
+				# self.scenario = "SEGURIDAD"
+				# self.send_move_command("PIR")
 				self.send_face_detect_command("on")
+				
 			else:
 				print("Warning: This kind of sensor does not use this code")
 
@@ -361,7 +375,7 @@ class tunstall_manager_node:
 			
 			if id == "03":
 				desired_id = "03"
-				target = "paco"
+				target = "Paco"
 				if self.verbose:
 					print("La id es la de la silla de Paco")
 
@@ -374,7 +388,7 @@ class tunstall_manager_node:
 
 			elif id == "02":
 				desired_id = "02"
-				target = "roberto"
+				target = "Roberto"
 				if self.verbose:
 					print("La id es la de la silla de Roberto")
 					
@@ -390,7 +404,7 @@ class tunstall_manager_node:
 			if is_closed == False:
 				if self.verbose:
 						print("puerta abierta")
-				## go to to the position of the chair sensor with some correction
+						## go to to the position of the chair sensor with some correction
 						self.send_move_command(target)							
 						if self.verbose:
 							print("Moviendose a la silla de "+target)
@@ -403,7 +417,7 @@ class tunstall_manager_node:
 
 						## activate speak node
 						# json message to activate speak
-						self.face_recognized_callback(msg)	
+						# self.face_recognized_callback(msg)	
 
 						#self.scenario = "CAFE"
 
