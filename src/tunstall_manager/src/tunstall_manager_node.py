@@ -63,10 +63,10 @@ class tunstall_manager_node:
 		self.verbose = rospy.get_param('~verbose')
 		self.active = True
 		self.scenario = "None"
-		self.time_threshold = 1 # hours
+		self.time_threshold = 0.05 # hours
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(0.5*60), self.timer_callback)
+		rospy.Timer(rospy.Duration(2*60), self.timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -369,7 +369,7 @@ class tunstall_manager_node:
 
 
 		# if the chair sensor is activated go there and say something
-		if code == "BA":
+		if False and code == "BA":
 			if self.verbose:
 				print("Se ha activado sensor de silla")			
 			
@@ -381,7 +381,7 @@ class tunstall_manager_node:
 
 				linked_door_id = "01"
 				linked_door_sensor = self.find_sensor_by_id(linked_door_id)
-				#print(linked_door_sensor["status"][-1][0])
+				print(linked_door_sensor)
 				is_closed = linked_door_sensor["status"][-1][0]
 				
 
@@ -394,7 +394,7 @@ class tunstall_manager_node:
 					
 				linked_door_id = "01"
 				linked_door_sensor = self.find_sensor_by_id(linked_door_id)
-				#print(linked_door_sensor["status"][-1][0])
+				print(linked_door_sensor["status"])
 				is_closed = linked_door_sensor["status"][-1][0]
 				
 					
@@ -435,7 +435,7 @@ class tunstall_manager_node:
 				self.scenario = "PUERTA CERRADA"
 				rospy.sleep(20)
 
-				if linked_door_sensor["status"[-1][0]] == False:
+				if linked_door_sensor["status"][-1][0] == False:
 					if self.verbose:
 							print("puerta abierta")
 					## go to to the position of the chair sensor with some correction
@@ -553,7 +553,7 @@ class tunstall_manager_node:
 			# print("sensor id: ", type(sensor['id']))
 
 			if int(id) == sensor['id']:
-				sensor['status'] = [aux,timestamp]
+				sensor['status'].append([aux,timestamp])
 				encontrado = True
 				if self.verbose:
 					# for debugging

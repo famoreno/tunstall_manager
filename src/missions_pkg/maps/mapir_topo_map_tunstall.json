@@ -6,9 +6,9 @@
         {"category":"lab","label":"laboratorio3","location":{"y":0,"x":5}},
         {"category":"lab","label":"laboratorio4","location":{"y":0,"x":0}},
         {"category":"lab","label":"docking_station","location":{"y":0.4,"x":4.15}},
-        {"category":"desk","label":"Alberto","location":{"y":0,"x":5.5}},
+        {"category":"desk","label":"Roberto","location":{"y":-0.75,"x":4.5,"yaw":-0.8}},
         {"category":"desk","label":"Mario","location":{"y":6,"x":5}},
-        {"category":"desk","label":"Paco","location":{"y":5,"x":-1,"yaw":-3.14}},
+        {"category":"desk","label":"Paco","location":{"y":5,"x":-1,"yaw":-2.356}},
         {"category":"desk","label":"Javier","location":{"y":-0.5,"x":-0.5}},
         {"category":"corridor","label":"pasillo1","location":{"y":7,"x":9}},
         {"category":"corridor","label":"pasillo2","location":{"y":-1,"x":9}}
