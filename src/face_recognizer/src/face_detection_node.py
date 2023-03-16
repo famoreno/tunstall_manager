@@ -27,7 +27,7 @@ class face_detector_node:
     def __init__(self) -> None:
         # node parameters
         self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
-        self.pub_cara = rospy.Publisher('face', Image,queue_size=10)
+        self.pub_cara = rospy.Publisher('/face_detector/face', Image,queue_size=1)
         self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
         self.confidence = 0.9
@@ -47,12 +47,12 @@ class face_detector_node:
         self.predictor = dlib.shape_predictor(self.predictorPath)
         self.fa = FaceAligner(self.predictor)
 
-        #Service to start/stop surveillance mode
+        #Service to start/stop face detection
         self.srv = rospy.Service('~command_face_detection', command_face_detection, self.handle_command_face_detection)
 
         while not rospy.is_shutdown():
             
-            #Check if surveillance mode is active
+            # Check if 'face detection' is active
             if self.active:
 
                 if not self.new_image_ready:
@@ -91,17 +91,19 @@ class face_detector_node:
                     # recortar la imagen de la cara
                     crop_frame = frame[startY:endY,startX:endX]
 
-                    #image = imutils.resize(frame0, width=800)
-                    #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                    # image = imutils.resize(frame0, width=800)
+                    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                     
                     # Eye alignment
-                    #this_bb = dlib.rectangle(startX,startY,endX,endY)
-                    #face_aligned = self.fa.align(image, gray, this_bb)
+                    # this_bb = dlib.rectangle(startX,startY,endX,endY)
+                    # face_aligned = self.fa.align(image, gray, this_bb)
 
                     # Volver a cambiar el formato a imagen
-                    face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
-                    #face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
-                    self.pub_cara.publish(face_frame)
+                    (h,w) = crop_frame.shape[0:2]
+                    if h > 0 and w > 0:
+                        face_frame = self.bridge.cv2_to_imgmsg(crop_frame)
+                        # face_frame = self.bridge.cv2_to_imgmsg(face_aligned)
+                        self.pub_cara.publish(face_frame)
 
                 # clear image ready flag to process more
                 self.new_image_ready = False
@@ -119,8 +121,8 @@ class face_detector_node:
             print(e)
 
     def handle_command_face_detection(self,req):
-		
-		#Check whether we start the node or we stop it
+               
+		# Check whether we start the node or we stop it
         if req.task_command == "on":
             self.active = True
             if self.verbose:
@@ -134,6 +136,8 @@ class face_detector_node:
                 
             return True
         else:
+            if self.verbose:
+                    rospy.loginfo("[face_detection_node] Received unknown command:", req.task_command)
             return False
 
 def main(args):
