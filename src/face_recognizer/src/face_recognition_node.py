@@ -15,13 +15,12 @@ import rospy
 from cv_bridge import CvBridge, CvBridgeError
 
 from face_recognizer.srv import command_face_recognition
-
-
+from face_recognizer.srv import command_face_detection
 
 class Face_recognition_node:
     def __init__(self) -> None:
         # node parameters
-        self.sub = rospy.Subscriber('face',Image,self.callback)
+        self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback)
         self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=10)
         self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=10)
         self.rate = rospy.Rate(1)
@@ -30,8 +29,8 @@ class Face_recognition_node:
         # local operation parameters
         self.crop_face_ready = False
         self.detected_face_ready = False
-        self.verbose = False
-
+        self.verbose = True
+        self.active = True
 
         # load our serialized face embedding model from disk
         print("[INFO] loading face recognizer...")
@@ -68,7 +67,6 @@ class Face_recognition_node:
                 # la variable face coge el valor del topic recibido por el nodo anterior
                 face = self.detected_face
 
-                #
                 faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),(0, 0, 0), swapRB=True, crop=False)
                 embedder.setInput(faceBlob)
                 vec = embedder.forward()
@@ -77,7 +75,7 @@ class Face_recognition_node:
                 j = np.argmax(preds)
                 proba = preds[j]
                 name = le.classes_[j]
-                #print(name)
+                # print(name)
 
                 # draw the bounding box of the face along with the associated
                 # probability
@@ -86,24 +84,43 @@ class Face_recognition_node:
                 #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
                 cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-                # show the output image (publicada como topic mediante ROS)
+                # publish the output image and the recognized face
                 face_frame = self.bridge.cv2_to_imgmsg(face)
                 self.pub_cara.publish(face_frame)
                 self.pub_nombre.publish(String(name))
 
-                # Pronunciar el nombre en voz alta
-                # reset flag
+                # reset flag and deactivate this node
                 self.detected_face_ready = False
+                # self.active = False
+                
+                # deactivate face detector calling to its service
+                if self.verbose:
+                    rospy.loginfo("[face_recognition_node] Deactivating face detector node")
+                
+                rospy.wait_for_service('/face_detector/command_face_detection')
+                try:
+                    face_command = rospy.ServiceProxy('/face_detector/command_face_detection', command_face_detection)
+                    face_command("off")
+                    if self.verbose:
+                        rospy.loginfo("[face_recognition_node] ... done")
+                except rospy.ServiceException as e:
+                    print("Service call failed: %s"%e)
 
             # sleep until frame rate is achieved
             self.rate.sleep()
 
-    #leer el topic de face_detection_node
-    def callback(self,data):
+    # leer el topic de face_detection_node
+    def face_detected_callback(self,data):
+            if not self.active:
+                return
+            
             if self.detected_face_ready:
                 return
+            
             try:
-                # self.detected_face = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+                if self.verbose:
+                    rospy.loginfo("[face_recognition_node] Received image from topic")
+                
                 self.detected_face = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
                 self.detected_face_ready = True
             except CvBridgeError as e:
@@ -111,8 +128,7 @@ class Face_recognition_node:
                     print(e)
 
     def handle_command_face_recognition(self,req):
-		
-		#Check whether we start the node or we stop it
+		# Check whether we start the node or we stop it
         if req.task_command == "on":
             self.active = True
             if self.verbose:
@@ -126,12 +142,15 @@ class Face_recognition_node:
                 
             return True
         else:
+            if self.verbose:
+                rospy.loginfo("[face_recognition_node] Received unknown command")
+            
             return False
 
 
 def main(args):
     rospy.init_node('face_recognizer_node', anonymous=True)
-    node =Face_recognition_node ()
+    node = Face_recognition_node ()
     try:
         rospy.spin()
     except KeyboardInterrupt:
