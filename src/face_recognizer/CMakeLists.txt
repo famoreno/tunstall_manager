@@ -58,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    command_face_detection.srv
+   command_face_recognition.srv
  )
 
 ## Generate actions in the 'action' folder
