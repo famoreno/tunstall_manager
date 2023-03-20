@@ -5,7 +5,7 @@
         {"category":"lab","label":"laboratorio2","location":{"y":5,"x":0}},
         {"category":"lab","label":"laboratorio3","location":{"y":0,"x":5}},
         {"category":"lab","label":"laboratorio4","location":{"y":0,"x":0}},
-        {"category":"lab","label":"docking_station","location":{"y":0.4,"x":4.15}},
+        {"category":"lab","label":"docking_station","location":{"y":4.55,"x":0.3}},
         {"category":"desk","label":"Roberto","location":{"y":-0.75,"x":4.5,"yaw":-0.8}},
         {"category":"desk","label":"Mario","location":{"y":6,"x":5}},
         {"category":"desk","label":"Paco","location":{"y":5,"x":-1,"yaw":-2.356}},
@@ -15,6 +15,6 @@
     ],
     "userid":"famd",
     "objects":[
-        {"type":"docking_station","location":{"y":0.4,"x":4.15},"label":"docking_station","space_label":"HALLWAY1"}
+        {"type":"docking_station","location":{"y":4.55,"x":0.3},"label":"docking_station","space_label":"HALLWAY1"}
     ]
 }
