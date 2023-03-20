@@ -13,7 +13,7 @@
 			"id" : 1, 
 			"position" : [7.1, 3.4],
 			"room" : "2.3.6i",
-			"name" : "Puerta1", 
+			"name" : "Puerta2", 
 			"type" : "DOOR",
 			"status" : [[false,0]]
 		},	
