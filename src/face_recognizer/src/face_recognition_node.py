@@ -14,7 +14,7 @@ import sys
 import rospy 
 from cv_bridge import CvBridge, CvBridgeError
 
-from face_recognizer.srv import command_face_recognition
+#from face_recognizer.srv import command_face_recognition
 from face_recognizer.srv import command_face_detection
 
 class Face_recognition_node:
@@ -50,7 +50,7 @@ class Face_recognition_node:
         le = pickle.loads(open(self.lePath, "rb").read())
 
         #Service to start/stop recognition mode
-        self.srv = rospy.Service('~command_face_recognition', command_face_recognition, self.handle_command_face_recognition)
+        #self.srv = rospy.Service('~command_face_recognition', command_face_recognition, self.handle_command_face_recognition)
 
         print("[INFO face recognizer] parameters loaded")
 
@@ -127,25 +127,25 @@ class Face_recognition_node:
                 if self.verbose:
                     print(e)
 
-    def handle_command_face_recognition(self,req):
-		# Check whether we start the node or we stop it
-        if req.task_command == "on":
-            self.active = True
-            if self.verbose:
-                rospy.loginfo("[face_recognition_node] Received command: ON")
+#    def handle_command_face_recognition(self,req):
+#		# Check whether we start the node or we stop it
+ #       if req.task_command == "on":
+  #          self.active = True
+   #         if self.verbose:
+    #            rospy.loginfo("[face_recognition_node] Received command: ON")
             
-            return True
-        elif req.task_command == "off":
-            self.active = False
-            if self.verbose:
-                rospy.loginfo("[face_recognition_node] Received command: OFF")
+     #       return True
+      #  elif req.task_command == "off":
+       #     self.active = False
+        #    if self.verbose:
+         #       rospy.loginfo("[face_recognition_node] Received command: OFF")
                 
-            return True
-        else:
-            if self.verbose:
-                rospy.loginfo("[face_recognition_node] Received unknown command")
+         #   return True
+       # else:
+        #    if self.verbose:
+         #       rospy.loginfo("[face_recognition_node] Received unknown command")
             
-            return False
+          #  return False
 
 
 def main(args):
