@@ -214,7 +214,11 @@ class tunstall_manager_node:
 							# puerta abierta							
 							rospy.loginfo("[tunstall_manager_node] Puerta abierta")
 							self.send_move_command(first_name)
-							self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
+							msg = self.send_face_detect_command("on")
+							# read the topic from face recognizer
+							self.face_recognized_callback(msg)
+							#self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
+							self.send_move_command("docking_station")
 							
 
 						else:
@@ -231,6 +235,28 @@ class tunstall_manager_node:
 
 							# Launch a timer to check the door every 2 seconds (up to 30s)
 							self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
+
+							# Find the corresponding door
+							for sensor in self.sensor_db_dict['sensor_db']:
+								if sensor["type"] == TSensorType.DOOR and sensor["room"] == first_room:
+									my_door = sensor
+									is_open = not my_door["status"][-1][0]
+									found = True
+									break
+
+							if found:	
+								self.scenario = TScenario.CANSANCIO
+
+								if is_open:
+									# puerta abierta							
+									rospy.loginfo("[tunstall_manager_node] Puerta abierta")
+									self.send_move_command(first_name)
+									self.send_speak_command("Llevas una hora sentado en la silla. ¿Por qué no sales y te tomas un descanso?")
+									self.send_move_command("BASE")
+
+							else:
+								self.send_move_command("BASE")
+								
 
 	# callback for timer for checking if a door is open
 	def check_door_timer_callback(self, event):
@@ -392,14 +418,21 @@ class tunstall_manager_node:
 		# STATE MACHINE
 		if self.scenario == TScenario.NONE:
 			if code == "BA":
-				
+				# self.scenario = TScenario.CAFE  ¿? Entra en el escenario en cuanto salta el sensor, no al final
+
+				#if self.verbose:
+				#	rospy.loginfo("[tunstall_manager_node] Pasando a escenario CAFE ...")
+		
 				if id == "03":
 					target = "Paco"
 					linked_door_id = "01"
 				elif id == "02":
 					target = "Roberto"
 					linked_door_id = "02"
+
+				#check if the linked_door_id are correct
 				
+								
 				if self.verbose:
 					rospy.loginfo("[tunstall_manager_node] Se ha activado un sensor de silla: " + target)
 
@@ -416,6 +449,12 @@ class tunstall_manager_node:
 					if self.verbose:
 						rospy.loginfo("[tunstall_manager_node] Detectando cara...")
 					self.send_face_detect_command("on")
+					if self.verbose:
+						rospy.loginfo("[tunstall_manager_mode] Elaborando una respuesta... ")
+					self.face_recognized_callback(msg) #self.scenario needs to be already different than NONE here
+					self.send_move_command("docking_station")
+					# self.scenario = TScenario.NONE
+
 
 				else:
 					if self. verbose :
@@ -431,10 +470,14 @@ class tunstall_manager_node:
 					
 					# Launch a timer to check the door every 2 seconds (up to 30s)
 					self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
+					self.face_recognized_callback(msg)
+					self.send_move_command("docking_station")
 				
 				if self.verbose:
 					rospy.loginfo("[tunstall_manager_node] Pasando a escenario CAFE ...")
 				self.scenario = TScenario.CAFE
+
+				# not sure about this last argument
 				
 				
 
@@ -442,8 +485,8 @@ class tunstall_manager_node:
 
 
 
-		# if the chair sensor is activated go there and say something
-		if False and code == "BA":
+	"""	# if the chair sensor is activated go there and say something
+		if  code == "BA":
 			if self.verbose:
 				print("Se ha activado sensor de silla")			
 			
@@ -491,7 +534,8 @@ class tunstall_manager_node:
 
 						## activate speak node
 						# json message to activate speak
-						# self.face_recognized_callback(msg)	
+						self.face_recognized_callback(msg)
+							
 
 						#self.scenario = "CAFE"
 
@@ -531,7 +575,7 @@ class tunstall_manager_node:
 				else :
 							print ("la puerta sigue cerrada")
 
-							return
+							return """
 
 					
 							
