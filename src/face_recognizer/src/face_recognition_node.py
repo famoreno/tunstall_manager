@@ -93,6 +93,7 @@ class Face_recognition_node:
                 self.detected_face_ready = False
                 # self.active = False
                 
+                '''
                 # deactivate face detector calling to its service
                 if self.verbose:
                     rospy.loginfo("[face_recognition_node] Deactivating face detector node")
@@ -105,6 +106,7 @@ class Face_recognition_node:
                         rospy.loginfo("[face_recognition_node] ... done")
                 except rospy.ServiceException as e:
                     print("Service call failed: %s"%e)
+                '''
 
             # sleep until frame rate is achieved
             self.rate.sleep()
