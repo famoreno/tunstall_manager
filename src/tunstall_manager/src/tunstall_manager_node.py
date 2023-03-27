@@ -302,13 +302,65 @@ class tunstall_manager_node:
 				text_to_say = "Deberías tomarte un descanso, " + str(msg.data)
 
 		elif self.scenario == TScenario.SEGURIDAD:
+
+			too_late = "15:00:00"
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] too late is after " + too_late)
+			too_early = "07:00:00"
+			if self.verbose:
+				rospy.loginfo("[tunstall_manager_node] too early is before " + too_early)
+
 			if str(msg.data) == "Roberto":
-				text_to_say = str(msg.data)+"Hay alguien en tu silla"
+				current_time =self.get_time_zone()
+				if current_time> too_late or current_time < too_early:
+					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
+
+					text_to_say = str(msg.data)+"No tienes permiso para estar aquí a las " + current_time
+
+				else:
+					for sensor in self.sensor_db_dict['sensor_db']:
+						if sensor["type"] == TSensorType.CHAIR:	
+							if sensor["status"][-1][0]:
+								if sensor["name"] == "Roberto":			
+									text_to_say = str(msg.data)+"Hay alguien en tu silla"
+								elif sensor["name"] == "Paco":			
+									text_to_say = str(msg.data)+"Si buscas a Paco, está en su silla"
+
+
 			elif str(msg.data) == "Paco":
-				text_to_say = str(msg.data)+"Hay alguien en tu silla"
-			else: 
-				text_to_say = "Roberto y Paco están en sus asientos"		
-		
+				current_time =self.get_time_zone()
+				if current_time> too_late or current_time < too_early:
+					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
+
+					text_to_say = str(msg.data)+"¿Tienes permiso para estar aquí a las " + current_time + "?"
+
+				else:
+					for sensor in self.sensor_db_dict['sensor_db']:
+						if sensor["type"] == TSensorType.CHAIR:	
+							if sensor["status"][-1][0]:
+								if sensor["name"] == "Paco":			
+									text_to_say = str(msg.data)+"Hay alguien en tu silla"
+								elif sensor["name"] == "Paco":			
+									text_to_say = str(msg.data)+"Si buscas a Roberto, está en su silla"
+				
+			elif str(msg.data) == "Desconocido": 
+				current_time =self.get_time_zone()
+				if current_time> too_late or current_time < too_early:
+					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
+
+					text_to_say = str(msg.data)+"Márchese o avisaré a seguridad"
+
+				else:	
+
+					for sensor in self.sensor_db_dict['sensor_db']:
+						if sensor["type"] == TSensorType.CHAIR:	
+							if sensor["status"][-1][0]:
+								if sensor["name"] == "Paco":
+									text_to_say = "Si buscas a Paco, está en su silla"	
+								elif sensor["name"] == "Roberto":	
+									text_to_say = str(msg.data)+"Si buscas a Roberto, está en su silla"
+
+
 		# Now speak! and go back to the docking station
 		self.send_speak_command(text_to_say)
 		self.send_move_command("docking_station")
@@ -476,36 +528,47 @@ class tunstall_manager_node:
 						rospy.loginfo("[tunstall_manager_node] PIR: " + str(id) + " has been activated")
 
 
-				for sensor in self.sensor_db_dict['sensor_db']:
-					if sensor["type"] == TSensorType.CHAIR:	
-						is_active  = sensor["status"][-1][0]
-						if is_active:
-							count +=1
+			#	for sensor in self.sensor_db_dict['sensor_db']:
+			#		if sensor["type"] == TSensorType.CHAIR:	
+			#			is_active  = sensor["status"][-1][0]
+			#			if is_active:
+			#				count +=1
 
-				if count == 2:
-					self.send_move_command("PIR")
-					self.send_face_detect_command("on")
+				#if count == 2:
+				self.send_move_command("PIR")
+				if self.verbose:
+					rospy.loginfo("[tunstall_manager_node] Dirigiéndose al PIR... ")
+				
+				if self.verbose:
+					rospy.loginfo("[tunstall_manager_node] Detectando cara...")
+				self.send_face_detect_command("on")
+				if self.verbose:
+					rospy.loginfo("[tunstall_manager_mode] Elaborando una respuesta... ")
 					#self.scenario = TScenario.NONE
 
-				else: 
+				#else: 
 
-					t = time.localtime()
-					current_time = time.strftime("%H:%M:%S", t)
-					rospy.loginfo("[tunstall_manager_node] Current Time = " + current_time)
+					#t = time.localtime()
+					#current_time = time.strftime("%H:%M:%S", t)
+					#rospy.loginfo("[tunstall_manager_node] Current Time = " + current_time)
 					
-					too_late = "15:00:00"
-					print("too late is after " + too_late)
-					too_early = "07:00:00"
-					print("too early is before " + too_early)
+					#too_late = "15:00:00"
+					#if self.verbose:
+					#	rospy.loginfo("[tunstall_manager_node] too late is after " + too_late)
+					#print("too late is after " + too_late)
+					#too_early = "07:00:00"
+					#if self.verbose:
+					#	rospy.loginfo("[tunstall_manager_node] too early is before " + too_early)
+					#print("too early is before " + too_early)
 
-					if current_time> too_late or current_time < too_early:
-						rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
-						self.send_move_command("PIR")
-						self.send_face_detect_command("on")
+					#if current_time> too_late or current_time < too_early:
+					#	rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
+						#self.send_move_command("PIR")
+						#self.send_face_detect_command("on")
 						#self.scenario = TScenario.NONE
-					else:
-						rospy.loginfo("[tunstall_manager_node] Current time zone is safe")
-						self.scenario = TScenario.NONE
+					#else:
+					#	rospy.loginfo("[tunstall_manager_node] Current time zone is safe")
+					#	self.scenario = TScenario.NONE
 
 
 
@@ -790,6 +853,14 @@ class tunstall_manager_node:
 		
 		rospy.loginfo("[tunstall_manager_node] ERROR: id not found")
 		return None
+
+	def get_time_zone(self):
+
+		t = time.localtime()
+		current_time = time.strftime("%H:%M:%S", t)
+		rospy.loginfo("[tunstall_manager_node] Current Time = " + current_time)
+
+		return current_time
 
 
 # ENTRY POINT
