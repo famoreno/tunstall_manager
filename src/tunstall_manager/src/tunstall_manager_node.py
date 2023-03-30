@@ -303,7 +303,7 @@ class tunstall_manager_node:
 
 		elif self.scenario == TScenario.SEGURIDAD:
 
-			too_late = "15:00:00"
+			too_late = "03:00:00"
 			if self.verbose:
 				rospy.loginfo("[tunstall_manager_node] too late is after " + too_late)
 			too_early = "07:00:00"
@@ -315,16 +315,16 @@ class tunstall_manager_node:
 				if current_time> too_late or current_time < too_early:
 					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
 
-					text_to_say = str(msg.data)+"No tienes permiso para estar aquí a las " + current_time
+					text_to_say = str(msg.data)+" No tienes permiso para estar aquí a las " + current_time
 
 				else:
 					for sensor in self.sensor_db_dict['sensor_db']:
 						if sensor["type"] == TSensorType.CHAIR:	
 							if sensor["status"][-1][0]:
 								if sensor["name"] == "Roberto":			
-									text_to_say = str(msg.data)+"Hay alguien en tu silla"
+									text_to_say = str(msg.data)+" Hay alguien en tu silla"
 								elif sensor["name"] == "Paco":			
-									text_to_say = str(msg.data)+"Si buscas a Paco, está en su silla"
+									text_to_say = str(msg.data)+" Si buscas a Paco, está en su silla"
 
 
 			elif str(msg.data) == "Paco":
@@ -363,6 +363,7 @@ class tunstall_manager_node:
 
 		# Now speak! and go back to the docking station
 		self.send_speak_command(text_to_say)
+		rospy.loginfo("[tunstall_manager_node]" + text_to_say)
 		self.send_move_command("docking_station")
 
 		# Reset state
@@ -521,7 +522,7 @@ class tunstall_manager_node:
 
 			if code == 	"BH":
 				self.scenario = TScenario.SEGURIDAD
-				count = 0
+				#count = 0
 
 				if self.check_type(id,TSensorType.PIR):
 					if self.verbose:

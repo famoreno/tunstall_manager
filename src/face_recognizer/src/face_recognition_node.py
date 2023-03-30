@@ -84,6 +84,11 @@ class Face_recognition_node:
                 #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
                 cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
+
+                ### contar 10 reconocimientos, si algún nombre supera el 70% lo publica
+
+                
+
                 # publish the output image and the recognized face
                 face_frame = self.bridge.cv2_to_imgmsg(face)
                 self.pub_cara.publish(face_frame)
