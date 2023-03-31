@@ -28,7 +28,7 @@ class face_detector_node:
         # node parameters
         self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
         self.pub_cara = rospy.Publisher('/face_detector/face', Image,queue_size=1)
-        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(3)
         self.bridge = CvBridge()
         self.confidence = 0.9
         
