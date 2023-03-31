@@ -23,7 +23,7 @@ class Face_recognition_node:
         self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback)
         self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=10)
         self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=10)
-        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(3)
         self.bridge = CvBridge()
 
         # local operation parameters
@@ -163,13 +163,13 @@ class Face_recognition_node:
                     elif self.name_count2 >= self.fidelidad:
                         if self.verbose:
                           rospy.loginfo("[face recognizer node]" + str(self.name_count2) + "is > " + str(self.fidelidad))
-                        self.publish_output(self.name1,face)
+                        self.publish_output(self.name2,face)
                         if self.verbose:
                             rospy.loginfo("[face recognizer node] Publicando cara...")
                     elif self.name_count2 >= self.fidelidad:
                         if self.verbose:
                           rospy.loginfo("[face recognizer node]" + str(self.name_count2) + "is > " + str(self.fidelidad))
-                        self.publish_output(self.name1,face)
+                        self.publish_output(self.name3,face)
                         if self.verbose:
                             rospy.loginfo("[face recognizer node] Publicando cara...")
                         
@@ -185,29 +185,29 @@ class Face_recognition_node:
 
                 
                 
-                # publish the output image and the recognized face
-                #face_frame = self.bridge.cv2_to_imgmsg(face)
-                #self.pub_cara.publish(face_frame)
-                #self.pub_nombre.publish(String(name))
+                    # publish the output image and the recognized face
+                    #face_frame = self.bridge.cv2_to_imgmsg(face)
+                    #self.pub_cara.publish(face_frame)
+                    #self.pub_nombre.publish(String(name))
 
-                # reset flag and deactivate this node
-                #self.detected_face_ready = False
-                # self.active = False
+                    # reset flag and deactivate this node
+                    #self.detected_face_ready = False
+                    # self.active = False
+                    
                 
-                '''
-                # deactivate face detector calling to its service
-                if self.verbose:
-                    rospy.loginfo("[face_recognition_node] Deactivating face detector node")
-                
-                rospy.wait_for_service('/face_detector/command_face_detection')
-                try:
-                    face_command = rospy.ServiceProxy('/face_detector/command_face_detection', command_face_detection)
-                    face_command("off")
+                    # deactivate face detector calling to its service
                     if self.verbose:
-                        rospy.loginfo("[face_recognition_node] ... done")
-                except rospy.ServiceException as e:
-                    print("Service call failed: %s"%e)
-                '''
+                        rospy.loginfo("[face_recognition_node] Deactivating face detector node")
+                    
+                    rospy.wait_for_service('/face_detector/command_face_detection')
+                    try:
+                        face_command = rospy.ServiceProxy('/face_detector/command_face_detection', command_face_detection)
+                        face_command("off")
+                        if self.verbose:
+                            rospy.loginfo("[face_recognition_node] ... done")
+                    except rospy.ServiceException as e:
+                        print("Service call failed: %s"%e)
+                
 
             # sleep until frame rate is achieved
             self.rate.sleep()
