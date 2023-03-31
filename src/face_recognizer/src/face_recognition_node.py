@@ -31,6 +31,15 @@ class Face_recognition_node:
         self.detected_face_ready = False
         self.verbose = True
         self.active = True
+        self.muestra = 10
+        self.fidelidad = 7
+        self.count = 0
+        self.name_count1 =0
+        self.name_count2 = 0
+        self.name_count3 = 0
+        self.name1 = "null"
+        self.name2 = "null"
+        self.name3 = "null"
 
         # load our serialized face embedding model from disk
         print("[INFO] loading face recognizer...")
@@ -86,16 +95,103 @@ class Face_recognition_node:
 
 
                 ### contar 10 reconocimientos, si algún nombre supera el 70% lo publica
+                
+                if self.count < self.muestra:
+                    
+                    if self.name1 == "null":
+                        self.name1 = name
+                        self.name_count1 +=1
+                        if self.verbose:
+                            rospy.loginfo("[face recognizer node] name1 is: " + self.name1 + " and name_count1 is: " + str(self.name_count1))
+                        self.count +=1
+                        if self.verbose:
+                           rospy.loginfo("[face recognizer node] number of recognitions is: " + str(self.count))
+                    elif self.name1 != "null":
+                        if name == self.name1:
+                            self.name_count1 +=1
+                            if self.verbose:
+                                rospy.loginfo("[face recognizer node] name1 is: " + self.name1 + " and name_count1 is: " + str(self.name_count1))
+                            self.count +=1
+                            if self.verbose:
+                                rospy.loginfo("[face recognizer node] number of recognitions is: " + str(self.count))
+                        
+                        elif self.name2 == "null":
+                            self.name2 = name
+                            self.name_count2 +=1
+                            
+                            if self.verbose:
+                                rospy.loginfo("[face recognizer node] name2 is: " + self.name2 + " and name_count2 is: " + str(self.name_count2))
+                            self.count +=1
+                            if self.verbose:
+                                rospy.loginfo("[face recognizer node] number of recognitions is: " + str(self.count))
+                        
+                        elif self.name2 != "null":
+                            if name == self.name2:
+                              self.name_count2 +=1  
+
+                              if self.verbose:
+                                rospy.loginfo("[face recognizer node] name2 is: " + self.name2 + "name_self.count2 is: " + str(self.name_count2))
+                                self.count +=1
+
+                                if self.verbose:
+                                    rospy.loginfo("[face recognizer node] number of recognitions is: " + str(self.count))
+
+                            elif self.name3 == "null":
+                                self.name3 = name
+                                self.name_count3 +=1
+                                self.count +=1
+
+                                if self.verbose:
+                                    rospy.loginfo("[face recognizer node] self.name3 is: " + self.name3 + "and self.name_self.count3 is: " + str(self.name_count3))
+                            
+                            elif self.name3 != "null":
+
+                                if name == self.name3:
+                                    self.name_count3 +=1
+                                    self.count +=1
+
+                                    if self.verbose:
+                                        rospy.loginfo("[face recognizer node] self.name3 is: " + self.name3 + "and self.name_self.count3 is: " + str(self.name_count3))
+
+                elif self.count ==  self.muestra:
+                    if self.name_count1 >= self.fidelidad:
+                        if self.verbose:
+                          rospy.loginfo("[face recognizer node]" + str(self.name_count1) + "is > " + str(self.fidelidad))  
+                        self.publish_output(self.name1,face)
+                        if self.verbose:
+                            rospy.loginfo("[face recognizer node] Publicando cara...")
+                    elif self.name_count2 >= self.fidelidad:
+                        if self.verbose:
+                          rospy.loginfo("[face recognizer node]" + str(self.name_count2) + "is > " + str(self.fidelidad))
+                        self.publish_output(self.name1,face)
+                        if self.verbose:
+                            rospy.loginfo("[face recognizer node] Publicando cara...")
+                    elif self.name_count2 >= self.fidelidad:
+                        if self.verbose:
+                          rospy.loginfo("[face recognizer node]" + str(self.name_count2) + "is > " + str(self.fidelidad))
+                        self.publish_output(self.name1,face)
+                        if self.verbose:
+                            rospy.loginfo("[face recognizer node] Publicando cara...")
+                        
+                    self.count = 0
+                    self.name_count1 =0
+                    self.name_count2 = 0
+                    self.name_count3 = 0
+                    self.name1 = "null"
+                    self.name2 = "null"
+                    self.name3 = "null"   
+
+
 
                 
-
+                
                 # publish the output image and the recognized face
-                face_frame = self.bridge.cv2_to_imgmsg(face)
-                self.pub_cara.publish(face_frame)
-                self.pub_nombre.publish(String(name))
+                #face_frame = self.bridge.cv2_to_imgmsg(face)
+                #self.pub_cara.publish(face_frame)
+                #self.pub_nombre.publish(String(name))
 
                 # reset flag and deactivate this node
-                self.detected_face_ready = False
+                #self.detected_face_ready = False
                 # self.active = False
                 
                 '''
@@ -153,6 +249,17 @@ class Face_recognition_node:
                 rospy.loginfo("[face_recognition_node] Received unknown command")
             
             return False
+
+    def publish_output(self,name, face):
+        # publish the output image and the recognized face
+                face_frame = self.bridge.cv2_to_imgmsg(face)
+                self.pub_cara.publish(face_frame)
+                self.pub_nombre.publish(String(name))
+
+                # reset flag and deactivate this node
+                self.detected_face_ready = False
+                # self.active = False
+
 
 
 def main(args):
