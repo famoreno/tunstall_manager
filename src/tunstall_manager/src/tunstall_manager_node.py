@@ -212,14 +212,14 @@ class tunstall_manager_node:
 
 						if is_open:
 							# puerta abierta							
-							rospy.loginfo("[tunstall_manager_node] Puerta abierta")
+							rospy.loginfo("[tunstall_manager_node] Door is open")
 							self.send_move_command(first_name)
 							self.send_face_detect_command("on")
 
 						else:
 							# puerta cerrada
-							rospy.loginfo("[tunstall_manager_node] Puerta cerrada, necesito que me abran la puerta")
-							self.send_speak_command("Necesito que me abran la puerta de " + first_name)
+							rospy.loginfo("[tunstall_manager_node] Door closed, I need help to open it")
+							self.send_speak_command("I need someone to open " + first_name + "'s door")
 
 							# save data for later processing
 							self.linked_door_id = my_door["id"]
@@ -248,12 +248,12 @@ class tunstall_manager_node:
 			# Go to to the position of the chair sensor
 			self.send_move_command(self.target)							
 			if self.verbose:
-				rospy.loginfo("[tunstall_manager_node] Puerta abierta! Moviendose a la silla de" + self.target)
+				rospy.loginfo("[tunstall_manager_node] Door open! Moving to " + self.target + "'s chair")
 
 			# Activate face_detection_node 
 			self.send_face_detect_command("on")
 			if self.verbose:
-				rospy.loginfo("[tunstall_manager_node] Enviado comando de reconocimiento de cara...")
+				rospy.loginfo("[tunstall_manager_node] Sendind detect face command")
 			
 			return
 
@@ -273,28 +273,28 @@ class tunstall_manager_node:
 	def face_recognized_callback(self,msg):
 
 		if self.verbose:
-			rospy.loginfo("[tunstall_manager_node] Nombre reconocido: " + msg.data)
+			rospy.loginfo("[tunstall_manager_node] Recognized name: " + msg.data)
 
 		text_to_say = ""
 		if self.scenario == TScenario.CAFE:
 			# callback from the topic "face_recognizer/nombre" 
 			if str(msg.data) == "desconocido":
-				text_to_say = "Ese no es su asiento, levántese, por favor"
+				text_to_say = "This is not your seat, please stand up"
 
 			elif str(msg.data) == "Roberto":
-				text_to_say = "Tu café es el de la izquierda, sin azucar"
+				text_to_say = "Your coffee is in the red mug, without sugar, as you like"
 
 			elif str(msg.data) == "Paco":
-				text_to_say = "Tu café es el de la derecha, con leche sin lactosa"
+				text_to_say = "Your coffee is in the white mug, with lactose free milk "
 
 			else: 
-				text_to_say = "Lo siento, no traigo café para usted"
+				text_to_say = "I am sorry, I do not have a coffee for you"
 
 		elif self.scenario == TScenario.CANSANCIO:
 			if str(msg.data) == "desconocido":
-				text_to_say = "Deberías tomarte un descanso"
+				text_to_say = "You should take a rest"
 			else:
-				text_to_say = "Deberías tomarte un descanso, " + str(msg.data)
+				text_to_say = "You should take a rest, " + str(msg.data)
 
 		elif self.scenario == TScenario.SEGURIDAD:
 
@@ -310,16 +310,16 @@ class tunstall_manager_node:
 				if current_time> too_late or current_time < too_early:
 					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
 
-					text_to_say = str(msg.data)+" No tienes permiso para estar aquí a las " + current_time
+					text_to_say = str(msg.data)+" You do not have permission to be here " + current_time
 
 				else:
 					for sensor in self.sensor_db_dict['sensor_db']:
 						if sensor["type"] == TSensorType.CHAIR:	
 							if sensor["status"][-1][0]:
 								if sensor["name"] == "Roberto":			
-									text_to_say = str(msg.data)+" Hay alguien en tu silla"
+									text_to_say = str(msg.data)+" There is someone in your chair"
 								elif sensor["name"] == "Paco":			
-									text_to_say = str(msg.data)+" Si buscas a Paco, está en su silla"
+									text_to_say = str(msg.data)+" If you are loocking for Paco, he is in his chair"
 
 
 			elif str(msg.data) == "Paco":
@@ -327,23 +327,23 @@ class tunstall_manager_node:
 				if current_time> too_late or current_time < too_early:
 					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
 
-					text_to_say = str(msg.data)+"¿Tienes permiso para estar aquí a las " + current_time + "?"
+					text_to_say = str(msg.data)+"Do you have permission to be here at " + current_time + "?"
 
 				else:
 					for sensor in self.sensor_db_dict['sensor_db']:
 						if sensor["type"] == TSensorType.CHAIR:	
 							if sensor["status"][-1][0]:
 								if sensor["name"] == "Paco":			
-									text_to_say = str(msg.data)+"Hay alguien en tu silla"
+									text_to_say = str(msg.data)+" There is someone in your chair"
 								elif sensor["name"] == "Roberto":			
-									text_to_say = str(msg.data)+"Si buscas a Roberto, está en su silla"
+									text_to_say = str(msg.data)+" If you are loocking for Roberto, he is in his chair"
 				
 			elif str(msg.data) == "Desconocido": 
 				current_time =self.get_time_zone()
 				if current_time> too_late or current_time < too_early:
 					rospy.loginfo("[tunstall_manager_node] Current time zone is dangerous")
 
-					text_to_say = str(msg.data)+"Márchese o avisaré a seguridad"
+					text_to_say = str(msg.data)+" Leave now or i will call the security guard"
 
 				else:	
 
@@ -351,9 +351,9 @@ class tunstall_manager_node:
 						if sensor["type"] == TSensorType.CHAIR:	
 							if sensor["status"][-1][0]:
 								if sensor["name"] == "Paco":
-									text_to_say = "Si buscas a Paco, está en su silla"	
+									text_to_say = "If you are loocking for Paco, he is in his chair"	
 								elif sensor["name"] == "Roberto":	
-									text_to_say = str(msg.data)+"Si buscas a Roberto, está en su silla"
+									text_to_say = str(msg.data)+"If you are loocking for Roberto, he is in his chair"
 
 
 		# Now speak! and go back to the docking station
