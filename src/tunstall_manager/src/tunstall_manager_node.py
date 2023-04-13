@@ -231,7 +231,7 @@ class tunstall_manager_node:
 							# Launch a timer to check the door every 2 seconds (up to 30s)
 							self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
 
-								
+			##					
 
 	# callback for timer for checking if a door is open
 	def check_door_timer_callback(self, event):
