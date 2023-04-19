@@ -14,6 +14,7 @@ import datetime
 from tunstall_manager.srv import command_tunstall_manager, command_delete_file
 
 import time
+from rospy.exceptions import ROSException
 def to_seconds(date):
     return time.mktime(date.timetuple())
 
@@ -67,6 +68,15 @@ class tunstall_manager_node:
 
 		self.check_door_counter = 0
 
+		# detect face timeout
+		self.received_msg = False
+		# Variable para indicar si se ha enviado el comando de detección de caras
+		self.face_detect_command_sent = False
+		#rospy.Timer(rospy.Duration(30), self.timeout_callback)
+		#rospy.Timer(rospy.Duration(30), self.timeout_callback, [self.received_msg])
+		#self.timer = rospy.Timer(rospy.Duration(30), self.timeout_callback)
+
+
 		# activate timer for each 5 minutes
 		rospy.Timer(rospy.Duration(5*60), self.cansancio_timer_callback)
 		
@@ -93,7 +103,15 @@ class tunstall_manager_node:
 		# 		type : TSensorType.CHAIR,
 		# 		status : [[False, 0]]
 		# 	}
+
+
+
 		while not rospy.is_shutdown():
+			if self.face_detect_command_sent:
+				# Si se ha enviado el comando de detección de caras, establece un temporizador de 30 segundos
+				rospy.Timer(rospy.Duration(30), self.timeout_callback)
+				self.face_detect_command_sent = False # Restablece el valor a False para que no se vuelva a establecer el temporizador hasta que se envíe otro comando
+
 			self.rate.sleep()
 	
 	''' CALLBACK METHODS '''
@@ -214,6 +232,8 @@ class tunstall_manager_node:
 							# puerta abierta							
 							rospy.loginfo("[tunstall_manager_node] Door is open")
 							self.send_move_command(first_name)
+
+							#self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
 							self.send_face_detect_command("on")
 
 						else:
@@ -251,6 +271,8 @@ class tunstall_manager_node:
 				rospy.loginfo("[tunstall_manager_node] Door open! Moving to " + self.target + "'s chair")
 
 			# Activate face_detection_node 
+			# Launch a timer to check the door every 2 seconds (up to 30s)
+			self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
 			self.send_face_detect_command("on")
 			if self.verbose:
 				rospy.loginfo("[tunstall_manager_node] Sendind detect face command")
@@ -269,8 +291,32 @@ class tunstall_manager_node:
 			# cancel scenario
 			self.scenario = TScenario.NONE
 
+
+
+	#def timeout_callback(event,self, msg):
+	#	if not self.received_msg:
+	#		rospy.loginfo("tunstall_manager_node] Check face timer TIMEOUT")
+
+	def timeout_callback(self, event):
+		if not self.received_msg:
+			self.face_detect_command_sent = False
+			if self.verbose:
+				rospy.loginfo('[tunstall_manager_node]No se ha detectado ninguna cara en los últimos 30 segundos.')
+			self.send_face_detect_command("off")
+			if self.verbose:
+				rospy.loginfo('[tunstall_manager_node] Detect face off')
+			self.send_move_command("docking_station")
+			if self.verbose:
+				rospy.loginfo('[tunstall_manager_node] Scenario cancelled, moving back to docking station')
+			# cancel scenario
+			self.scenario = TScenario.NONE
+
+
+
 	# process face recognition result
 	def face_recognized_callback(self,msg):
+
+		self.received_msg = True
 
 		if self.verbose:
 			rospy.loginfo("[tunstall_manager_node] Recognized name: " + msg.data)
@@ -470,6 +516,9 @@ class tunstall_manager_node:
 						# puerta abierta							
 						rospy.loginfo("[tunstall_manager_node] Puerta abierta")
 						self.send_move_command(first_name)
+
+						# Launch a timer to check the door every 2 seconds (up to 30s)
+						#self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)
 						self.send_face_detect_command("on")
 
 					else:
@@ -502,6 +551,9 @@ class tunstall_manager_node:
 				
 				if self.verbose:
 					rospy.loginfo("[tunstall_manager_node] Detectando cara...")
+
+				# Launch a timer to check the door every 2 seconds (up to 30s)
+				#self.check_door_timer = rospy.Timer(rospy.Duration(2), self.check_door_timer_callback)	
 				self.send_face_detect_command("on")
 				if self.verbose:
 					rospy.loginfo("[tunstall_manager_mode] Elaborando una respuesta... ")
@@ -536,8 +588,14 @@ class tunstall_manager_node:
 		# complete GO command
 		self.face_detect_command["time"]["t"] = rospy.get_time()
 		
-		if command == "on" or command == "off":
+		if command == "on" :
 			self.face_detect_command["data"]["task_command"] = command
+			self.face_detect_command_sent = True 
+
+		elif command == "off":
+			self.face_detect_command["data"]["task_command"] = command
+			self.face_detect_command_sent = False 
+
 		else:
 			rospy.loginfo("[tunstall_manager_node] Face detect command not valid")
 		
