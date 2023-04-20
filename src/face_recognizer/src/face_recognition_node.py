@@ -20,7 +20,7 @@ from face_recognizer.srv import command_face_detection
 class Face_recognition_node:
     def __init__(self) -> None:
         # node parameters
-        self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback)
+        self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback,queue_size=1)
         self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=10)
         self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=10)
         self.rate = rospy.Rate(3)
@@ -174,7 +174,7 @@ class Face_recognition_node:
                             rospy.loginfo("[face recognizer node] Publicando cara...")
                         
                     self.count = 0
-                    self.name_count1 =0
+                    self.name_count1 = 0
                     self.name_count2 = 0
                     self.name_count3 = 0
                     self.name1 = "null"
@@ -191,7 +191,7 @@ class Face_recognition_node:
                     #self.pub_nombre.publish(String(name))
 
                     # reset flag and deactivate this node
-                    #self.detected_face_ready = False
+                    # self.detected_face_ready = False
                     # self.active = False
                     
                 

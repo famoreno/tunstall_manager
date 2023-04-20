@@ -131,6 +131,9 @@ class face_detector_node:
             return True
         elif req.task_command == "off":
             self.active = False
+            self.new_image = None
+            self.new_image_ready = False
+            
             if self.verbose:
                 rospy.loginfo("[face_detection_node] Received command: OFF")
                 
