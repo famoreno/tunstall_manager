@@ -10,6 +10,7 @@ from enum import Enum, auto
 from std_msgs.msg import String
 from diagnostic_msgs.msg import KeyValue
 import datetime
+import copy
 
 from tunstall_manager.srv import command_tunstall_manager, command_delete_file
 
@@ -144,7 +145,7 @@ class tunstall_manager_node:
 				rospy.loginfo("[tunstall_manager_node] Received command: RESTART")
 
 			for sensor in self.sensor_db_dict['sensor_db']:
-				sensor ["status"] = []
+				sensor ["status"] = sensor["status"][-1]
 				if self.verbose:
 					print(sensor)
 
@@ -174,7 +175,7 @@ class tunstall_manager_node:
 				for sensor in self.sensor_db_dict['sensor_db']:
 
 					if req.id == sensor['id']:
-						sensor['status'] = []
+						sensor['status'] = sensor["status"][-1]
 						encontrado = True
 						if self.verbose:
 							# for debugging
@@ -238,7 +239,9 @@ class tunstall_manager_node:
 							# puerta abierta							
 							rospy.loginfo("[tunstall_manager_node] Door is open")
 							self.send_move_command(first_name)
+							rospy.loginfo ("[tunstall_manager_node] Moving to location")
 							self.send_face_detect_command("on")
+							rospy.loginfo ("[tunstall_manager_node] Detectando cara")
 							self.waiting_for_task = "GO_TO_" + first_name
 							self.activate_timer = True
 
@@ -721,13 +724,14 @@ class tunstall_manager_node:
 	# save complete DB to file
 	def save_db(self):
 		json_file = open(self.sensor_file,"w")
-		local_sensor_db_dict = dict(self.sensor_db_dict)
-		for sensor in local_sensor_db_dict['sensor_db']:
+		#local_sensor_db_dict = dict(self.sensor_db_dict)
+		copied_dict = copy.deepcopy(self.sensor_db_dict)
+		for sensor in copied_dict['sensor_db']:
 			# for debugging
 			print(sensor) 
 			self.other_to_string(sensor)
 			print(sensor) # for debug
-		json.dump(local_sensor_db_dict, json_file)
+		json.dump(copied_dict, json_file)
 		json_file.close()
 
 	def find_sensor_by_id(self, id):
