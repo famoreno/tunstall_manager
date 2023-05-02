@@ -80,7 +80,7 @@ class tunstall_manager_node:
 
 
 		# activate timer for each 5 minutes
-		rospy.Timer(rospy.Duration(5*60), self.cansancio_timer_callback)
+		rospy.Timer(rospy.Duration(3*60), self.cansancio_timer_callback)
 		
 		# services for handling commands
 		self.srv_cmd = rospy.Service('~command_tunstall_manager', command_tunstall_manager, self.handle_command_tunstall_manager)
@@ -198,6 +198,7 @@ class tunstall_manager_node:
 		task_status = task_result["status"]
 
 		if task_name == self.waiting_for_task and task_status == "success" and self.activate_timer:
+			rospy.loginfo("[tunstall_manager_node] TIMER for face detection activated.")
 			rospy.Timer(rospy.Duration(30), self.face_detection_timer_callback, oneshot = True)
 			self.activate_timer = False
 
