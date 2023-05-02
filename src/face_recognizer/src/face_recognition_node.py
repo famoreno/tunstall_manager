@@ -20,9 +20,9 @@ from face_recognizer.srv import command_face_detection
 class Face_recognition_node:
     def __init__(self) -> None:
         # node parameters
-        self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback,queue_size=1)
-        self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=10)
-        self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=10)
+        self.sub = rospy.Subscriber('/face_detector/face',Image,self.face_detected_callback)
+        self.pub_nombre = rospy.Publisher('/face_recognizer/name',String,queue_size=1)
+        self.pub_cara = rospy.Publisher('/face_recognizer/recognized_face', Image,queue_size=1)
         self.rate = rospy.Rate(3)
         self.bridge = CvBridge()
 
@@ -40,6 +40,7 @@ class Face_recognition_node:
         self.name1 = "null"
         self.name2 = "null"
         self.name3 = "null"
+        self.faces = {}
 
         # load our serialized face embedding model from disk
         print("[INFO] loading face recognizer...")
@@ -93,9 +94,46 @@ class Face_recognition_node:
                 #cv2.rectangle(image, (startX, startY), (endX, endY),(0, 0, 255), 2)
                 cv2.putText(face, text, (20, 20),cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-
-                ### contar 10 reconocimientos, si algún nombre supera el 70% lo publica
+                # TODO: CHECK THIS
+                if name in self.faces:
+                    self.faces[name] += 1
+                else:
+                    self.faces[name] = 1
                 
+                self.count += 1
+
+                rospy.loginfo("[face recognizer node] Name is: {} : {}/{}".format(name, self.faces[name],self.count))
+                
+                # check if we have measured "self.muestra" times
+                if (self.count >= self.muestra):
+
+                    # found = False
+                    for my_name, my_count in self.faces.items():
+                        if my_count >= self.fidelidad:
+                            # we have recognized a face
+                            # found = True
+                            self.publish_output(my_name,face)
+
+                            # reset
+                            self.count = 0
+                            self.faces = {}
+
+                            # deactivate face detector calling to its service
+                            if self.verbose:
+                                rospy.loginfo("[face_recognition_node] Deactivating face detector node")
+                            
+                            rospy.wait_for_service('/face_detector/command_face_detection')
+                            try:
+                                face_command = rospy.ServiceProxy('/face_detector/command_face_detection', command_face_detection)
+                                face_command("off")
+                                if self.verbose:
+                                    rospy.loginfo("[face_recognition_node] ... done")
+                            except rospy.ServiceException as e:
+                                print("Service call failed: %s"%e)
+                    
+                    # if not found
+                '''
+                ### contar 10 reconocimientos, si algún nombre supera el 70% lo publica
                 if self.count < self.muestra:
                     
                     if self.name1 == "null":
@@ -174,7 +212,7 @@ class Face_recognition_node:
                             rospy.loginfo("[face recognizer node] Publicando cara...")
                         
                     self.count = 0
-                    self.name_count1 = 0
+                    self.name_count1 =0
                     self.name_count2 = 0
                     self.name_count3 = 0
                     self.name1 = "null"
@@ -207,7 +245,8 @@ class Face_recognition_node:
                             rospy.loginfo("[face_recognition_node] ... done")
                     except rospy.ServiceException as e:
                         print("Service call failed: %s"%e)
-                
+                '''
+                self.detected_face_ready = False # reset flag to get another image
 
             # sleep until frame rate is achieved
             self.rate.sleep()
@@ -250,15 +289,15 @@ class Face_recognition_node:
             
             return False
 
-    def publish_output(self,name, face):
+    def publish_output(self, name, face):
         # publish the output image and the recognized face
-                face_frame = self.bridge.cv2_to_imgmsg(face)
-                self.pub_cara.publish(face_frame)
-                self.pub_nombre.publish(String(name))
+        face_frame = self.bridge.cv2_to_imgmsg(face)
+        self.pub_cara.publish(face_frame)
+        self.pub_nombre.publish(String(name))
 
-                # reset flag and deactivate this node
-                self.detected_face_ready = False
-                # self.active = False
+        # reset flag and deactivate this node
+        self.detected_face_ready = False
+        # self.active = False
 
 
 

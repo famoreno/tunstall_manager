@@ -26,7 +26,7 @@ from face_recognizer.srv import command_face_detection
 class face_detector_node:
     def __init__(self) -> None:
         # node parameters
-        self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback)
+        self.sub = rospy.Subscriber('/usb_cam/image_raw',Image,self.callback,queue_size=1)
         self.pub_cara = rospy.Publisher('/face_detector/face', Image,queue_size=1)
         self.rate = rospy.Rate(3)
         self.bridge = CvBridge()
